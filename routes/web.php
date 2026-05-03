@@ -23,9 +23,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('app.index');
-})->middleware(['auth', 'verified', 'permission:view dashboard'])->name('dashboard');
+Route::get('/dashboard', [AuctionController::class, 'dashboard'])
+    ->middleware(['auth', 'verified', 'permission:view dashboard'])->name('dashboard');
 
 Route::middleware(['auth', 'role:admin|scrutinizer|bidder'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -59,6 +58,22 @@ Route::middleware(['auth', 'role:admin|scrutinizer|bidder'])->group(function () 
     Route::get('auctions-datatable', [AuctionController::class, 'datatable'])
         ->middleware('permission:view auctions')
         ->name('auctions.datatable');
+
+    Route::post('auctions/{auction}/start-challenge', [AuctionController::class, 'startChallenge'])
+        ->middleware('permission:edit auctions')
+        ->name('auctions.start-challenge');
+
+    Route::post('auctions/{auction}/edit-values', [AuctionController::class, 'editValues'])
+        ->middleware('permission:edit auctions')
+        ->name('auctions.edit-values');
+
+    Route::post('auctions/{auction}/end-challenge', [AuctionController::class, 'endChallenge'])
+        ->middleware('permission:edit auctions')
+        ->name('auctions.end-challenge');
+
+    Route::get('auctions/{auction}/download-report', [AuctionController::class, 'downloadReport'])
+        ->middleware('permission:view auctions')
+        ->name('auctions.download-report');
 
     Route::resource('users', UserController::class)
         ->middleware([
@@ -98,6 +113,8 @@ Route::prefix('ra')->name('ra.')->group(function () {
     Route::post('logout',     [RaAuthController::class, 'logout'])->name('logout');
     Route::get('dashboard',   [RaAuthController::class, 'dashboard'])->middleware(['auth', 'permission:view ra-dashboard'])->name('dashboard');
     Route::get('auction/{auction}',      [RaAuthController::class, 'auctionPortal'])->middleware(['auth', 'permission:view ra-dashboard'])->name('auction.portal');
+    Route::get('auction/{auction}/top-bids',  [RaAuthController::class, 'topBids'])->middleware(['auth', 'permission:view ra-dashboard'])->name('auction.top-bids');
+    Route::get('auction/{auction}/my-bids',   [RaAuthController::class, 'myBids'])->middleware(['auth', 'permission:view ra-dashboard'])->name('auction.my-bids');
     Route::post('auction/{auction}/bid',  [RaAuthController::class, 'placeBid'])->middleware(['auth', 'permission:view ra-dashboard'])->name('auction.bid');
 });
 

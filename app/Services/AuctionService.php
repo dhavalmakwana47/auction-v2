@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Auction;
 use App\Models\NpvCategory;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class AuctionService
@@ -19,11 +20,36 @@ class AuctionService
                 '<span class="badge-type-' . $a->increment_type . '">' . ucfirst($a->increment_type) . '</span>'
             )
             ->addColumn('initial_npv_value', fn($a) => number_format($a->initial_npv_value, 2))
-            ->addColumn('action', fn($a) =>
-                '<a href="' . route('auctions.edit', $a) . '" class="btn btn-warning btn-action mr-1" title="Edit"><i class="fas fa-edit" style="font-size:13px;"></i></a>'
-                . '<button class="btn btn-danger btn-action btn-delete" data-url="' . route('auctions.destroy', $a) . '" title="Delete"><i class="fas fa-trash" style="font-size:13px;"></i></button>'
-            )
+            ->addColumn('action', function ($a) {
+                $buttons = '';
+                if ($a->status === 'pending') {
+                    $buttons .= '<a href="' . route('auctions.edit', $a) . '" class="btn btn-warning btn-action mr-1" title="Edit"><i class="fas fa-edit" style="font-size:13px;"></i></a>';
+                }
+                $buttons .= '<button class="btn btn-danger btn-action btn-delete" data-url="' . route('auctions.destroy', $a) . '" title="Delete"><i class="fas fa-trash" style="font-size:13px;"></i></button>';
+                return $buttons;
+            })
             ->rawColumns(['increment_type', 'action'])
+            ->make(true);
+    }
+
+    public function dashboardDatatable()
+    {
+        $auctions = Auction::query();
+
+        if (request()->filled('status')) {
+            $auctions->where('status', request('status'));
+        }
+
+        return DataTables::eloquent($auctions)
+            ->addIndexColumn()
+            ->addColumn('increment_type', fn($a) =>
+                '<span class="badge-type-' . $a->increment_type . '">' . ucfirst($a->increment_type) . '</span>'
+            )
+            ->addColumn('initial_npv_value', fn($a) => number_format($a->initial_npv_value, 2))
+            ->addColumn('status', fn($a) =>
+                '<span class="badge-status-' . $a->status . '">' . ucfirst(str_replace('_', ' ', $a->status)) . '</span>'
+            )
+            ->rawColumns(['increment_type', 'status'])
             ->make(true);
     }
 
@@ -49,6 +75,7 @@ class AuctionService
             'process_decleration'   => $data['process_decleration'] ?? null,
             'ending_period'         => $data['ending_period'],
             'initial_npv_value'     => $data['initial_npv_value'],
+            'created_by'            => Auth::id(),
         ]);
 
         if (!empty($data['participants'])) {

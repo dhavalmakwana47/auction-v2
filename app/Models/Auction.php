@@ -14,13 +14,27 @@ class Auction extends Model
         'increment_amount_type',
         'increment_type',
         'process_decleration',
+        'status',
         'ending_period',
         'initial_npv_value',
+        'created_by',
+        'started_at',
+        'ended_at',
+    ];
+
+    protected $casts = [
+        'started_at' => 'datetime',
+        'ended_at'   => 'datetime',
     ];
 
     public function participants()
     {
         return $this->hasMany(AuctionParticipant::class);
+    }
+
+    public function bids()
+    {
+        return $this->hasMany(AuctionBid::class);
     }
 
     public function users()
@@ -36,5 +50,10 @@ class Auction extends Model
     public function npvCategories()
     {
         return $this->belongsToMany(NpvCategory::class, 'auction_npv_categories');
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

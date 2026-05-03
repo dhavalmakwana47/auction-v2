@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\BidPlaced;
+use App\Mail\BidConfirmationMail;
 use App\Models\RaOtp;
 use App\Models\User;
 use App\Models\Auction;
@@ -11,12 +13,14 @@ use App\Models\NpvpConfiguration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Yajra\DataTables\Facades\DataTables;
 
 class RaAuthController extends Controller
 {
     public function dashboard()
     {
         $auctions = Auction::whereHas('participants', fn($q) => $q->where('user_id', Auth::id()))
+            ->where('status', 'in_progress')
             ->with(['npvCategories', 'npvpConfigurations'])
             ->get();
 
@@ -25,20 +29,67 @@ class RaAuthController extends Controller
 
     public function auctionPortal(\App\Models\Auction $auction)
     {
-        // Ensure the RA user is a participant of this auction
         abort_unless(
             $auction->participants()->where('user_id', Auth::id())->exists(),
             403
         );
 
+        abort_if($auction->status !== 'in_progress', 403, 'This auction is not currently in progress.');
+
         $auction->load(['npvCategories', 'npvpConfigurations']);
 
-        return view('app.ra.portal', compact('auction'));
+        $highestBid = max(
+            $auction->base_price,
+            $auction->bids()->where('status', 'confirmed')->max('bid_amount') ?? 0
+        );
+
+        return view('app.ra.portal', compact('auction', 'highestBid'));
+    }
+
+    public function topBids(Auction $auction)
+    {
+        abort_unless($auction->participants()->where('user_id', Auth::id())->exists(), 403);
+
+        $bids = $auction->bids()
+            ->where('status', 'confirmed')
+            ->orderByDesc('bid_amount')
+            ->limit(10)
+            ->get(['bid_amount', 'total_npv', 'created_at']);
+
+        return DataTables::of($bids)
+            ->addIndexColumn()
+            ->addColumn('bid_amount', fn($b) => '₹ ' . number_format($b->bid_amount))
+            ->addColumn('total_npv',  fn($b) => '₹ ' . number_format($b->total_npv, 2))
+            ->addColumn('created_at', fn($b) => $b->created_at->format('d M Y, h:i A'))
+            ->rawColumns([])
+            ->make(true);
+    }
+
+    public function myBids(Auction $auction)
+    {
+        abort_unless($auction->participants()->where('user_id', Auth::id())->exists(), 403);
+
+        $bids = $auction->bids()
+            ->where('user_id', Auth::id())
+            ->orderByDesc('created_at');
+
+        return DataTables::of($bids)
+            ->addIndexColumn()
+            ->addColumn('bid_amount', fn($b) => '₹ ' . number_format($b->bid_amount))
+            ->addColumn('total_npv',  fn($b) => '₹ ' . number_format($b->total_npv, 2))
+            ->addColumn('status', fn($b) => $b->status === 'confirmed'
+                ? '<span class="badge badge-success">Valid</span>'
+                : '<span class="badge badge-danger">Invalid</span>')
+            ->addColumn('created_at', fn($b) => $b->created_at->format('d M Y, h:i A'))
+            ->rawColumns(['status'])
+            ->make(true);
     }
 
     public function placeBid(\Illuminate\Http\Request $request, Auction $auction)
     {
         abort_unless($auction->participants()->where('user_id', Auth::id())->exists(), 403);
+
+        abort_if($auction->status !== 'in_progress', 403, 'Bidding is only allowed on in-progress auctions.');
 
         $request->validate([
             'bid_amount'                         => 'required|numeric|min:0.01',
@@ -50,6 +101,29 @@ class RaAuthController extends Controller
 
         $bidAmount     = (float) $request->bid_amount;
         $distributions = $request->distributions;
+
+        $highestBid = max(
+            (float) str_replace(',', '', $auction->base_price),
+            $auction->bids()->where('status', 'confirmed')->max('bid_amount') ?? 0
+        );
+
+        // Must be greater than current highest bid
+        if ($bidAmount <= $highestBid) {
+            return response()->json(['message' => 'Bid amount must be greater than current base value (₹' . number_format($highestBid) . ').'], 422);
+        }
+
+        // Validate based on increment_type
+        $incrementAmount = (float) str_replace(',', '', $auction->increment_amount);
+        if ($auction->increment_type === 'fixed') {
+            $minBid = $highestBid + $incrementAmount;
+            if ($bidAmount < $minBid) {
+                return response()->json(['message' => 'Bid amount must be at least ₹' . number_format($minBid) . ' (Current Base + Increment).'], 422);
+            }
+        } else {
+            if ($incrementAmount > 0 && fmod($bidAmount, $incrementAmount) > 0.001) {
+                return response()->json(['message' => 'Bid amount must be a multiple of ₹' . number_format($incrementAmount) . '.'], 422);
+            }
+        }
 
         // Validate total distributed == bid amount
         $totalDistributed = collect($distributions)->sum(fn($d) => (float) $d['amount']);
@@ -71,6 +145,7 @@ class RaAuthController extends Controller
             'total_distributed' => $totalDistributed,
             'total_npv'         => $totalNpv,
             'status'            => 'confirmed',
+            'ip_address'        => $request->ip(),
         ]);
 
         foreach ($distributions as $d) {
@@ -83,6 +158,14 @@ class RaAuthController extends Controller
                 'npv_value'            => (float) $d['amount'] * (float) $config->percentage_value,
             ]);
         }
+
+        $bid->load(['user', 'auction.createdBy', 'auction.npvCategories', 'auction.npvpConfigurations', 'distributions.npvCategory', 'distributions.npvpConfiguration']);
+
+        broadcast(new BidPlaced($bid))->toOthers();
+
+        \Illuminate\Support\Facades\Mail::to($bid->user->email)
+            ->cc(optional($bid->auction->createdBy)->email)
+            ->send(new BidConfirmationMail($bid));
 
         return response()->json(['message' => 'Bid placed successfully!', 'bid_id' => $bid->id]);
     }

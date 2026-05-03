@@ -16,7 +16,7 @@
 
 @if($auctions->isEmpty())
     <div class="alert alert-warning" style="border-radius:12px;">
-        <i class="fas fa-exclamation-triangle mr-2"></i> No auctions have been assigned to you yet.
+        <i class="fas fa-exclamation-triangle mr-2"></i> No in-progress auctions have been assigned to you.
     </div>
 @else
     <div class="row">

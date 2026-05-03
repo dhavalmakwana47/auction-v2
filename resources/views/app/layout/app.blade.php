@@ -131,7 +131,7 @@
     {{-- <script src="plugins/jquery-ui/jquery-ui.min.js"></script> --}}
     <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
     <!-- Bootstrap 4 -->
-    {{-- <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script> --}}
+    <script src="{{ asset('plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     {{-- <!-- ChartJS -->
 <script src="plugins/chart.js/Chart.min.js"></script>
 <!-- Sparkline -->

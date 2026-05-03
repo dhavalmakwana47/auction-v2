@@ -16,9 +16,20 @@ class AuctionController extends Controller
         return view('app.auctions.index');
     }
 
+    public function dashboard()
+    {
+        $auctions = Auction::with('npvCategories')->get();
+        return view('app.index', compact('auctions'));
+    }
+
     public function datatable()
     {
         return $this->auctionService->datatable();
+    }
+
+    public function dashboardDatatable()
+    {
+        return $this->auctionService->dashboardDatatable();
     }
 
     public function create()
@@ -38,16 +49,124 @@ class AuctionController extends Controller
         return redirect()->route('auctions.index')->with('status', 'Auction created successfully.');
     }
 
+    public function show(Auction $auction)
+    {
+        $auction->load(['npvCategories', 'npvpConfigurations', 'participants.user', 'bids.user']);
+        return view('app.auctions.show', compact('auction'));
+    }
+
+    public function startChallenge(Request $request, Auction $auction)
+    {
+        $request->validate([
+            'base_price'       => 'required|numeric|min:0.01',
+            'initial_npv_value'=> 'required|numeric|min:0.01',
+        ]);
+
+        $auction->update([
+            'base_price'        => $request->base_price,
+            'initial_npv_value' => $request->initial_npv_value,
+            'status'            => 'in_progress',
+            'started_at'        => now(),
+        ]);
+
+        return response()->json(['message' => 'Challenge round started successfully.']);
+    }
+
+    public function editValues(Request $request, Auction $auction)
+    {
+        $request->validate([
+            'base_price'        => 'required|numeric|min:0.01',
+            'initial_npv_value' => 'required|numeric|min:0.01',
+        ]);
+
+        $auction->update([
+            'base_price'        => $request->base_price,
+            'initial_npv_value' => $request->initial_npv_value,
+        ]);
+
+        return response()->json(['message' => 'Values updated successfully.']);
+    }
+
+    public function endChallenge(Auction $auction)
+    {
+        abort_if($auction->status !== 'in_progress', 403, 'Only in-progress auctions can be ended.');
+
+        $auction->update(['status' => 'completed', 'ended_at' => now()]);
+
+        return response()->json(['message' => 'Challenge process ended. Auction marked as completed.']);
+    }
+
+    public function downloadReport(Auction $auction)
+    {
+        abort_if($auction->status !== 'completed', 403, 'Report is only available for completed auctions.');
+
+        $auction->load([
+            'participants.user',
+            'bids' => fn($q) => $q->orderBy('created_at'),
+            'bids.user',
+            'npvpConfigurations',
+            'npvCategories',
+        ]);
+
+        // Section B: best bid per participant
+        $bestBids = [];
+        foreach ($auction->participants as $p) {
+            $best = $auction->bids
+                ->where('user_id', $p->user_id)
+                ->where('status', 'confirmed')
+                ->sortByDesc('bid_amount')
+                ->first();
+            $bestBids[] = [
+                'user'    => $p->user,
+                'best'    => $best,
+                'annexure'=> 'Annexure ' . (count($bestBids) + 1),
+            ];
+        }
+
+        // Section C: all bids with remarks
+        $basePriceNum = (float) str_replace(',', '', $auction->base_price);
+        $incrementNum = (float) str_replace(',', '', $auction->increment_amount);
+        $allBids = [];
+        $runningBase = $basePriceNum;
+        foreach ($auction->bids->sortBy('created_at') as $bid) {
+            $remark = '';
+            if ($bid->status !== 'confirmed') {
+                if ($bid->bid_amount <= $runningBase) {
+                    $remark = 'BID AMOUNT Less than Base Value';
+                } elseif ($auction->increment_type === 'fixed' && $bid->bid_amount < $runningBase + $incrementNum) {
+                    $remark = 'BID AMOUNT does not comply with the requirement of Minimum Incremental Bid Value';
+                } else {
+                    $remark = 'Invalid Bid';
+                }
+            } else {
+                $remark = count($allBids) === 0 ? 'INITIAL BASE VALUE' : '—';
+                $runningBase = $bid->bid_amount;
+            }
+            $allBids[] = ['bid' => $bid, 'base' => $runningBase, 'remark' => $remark];
+        }
+
+        $html = view('reports.challenge-report', compact('auction', 'bestBids', 'allBids'))->render();
+
+        return response($html, 200, [
+            'Content-Type'        => 'text/html',
+            'Content-Disposition' => 'attachment; filename="challenge-report-' . $auction->id . '.html"',
+        ]);
+    }
+
     public function edit(Auction $auction)
     {
+        abort_if($auction->status !== 'pending', 403, 'Only pending auctions can be edited.');
+
         $auction->load('participants', 'npvpConfigurations', 'npvCategories');
-        $participants   = $this->auctionService->getParticipants();
-        $npvCategories  = $this->auctionService->getNpvCategories();
+        $participants  = $this->auctionService->getParticipants();
+        $npvCategories = $this->auctionService->getNpvCategories();
         return view('app.auctions.form', compact('auction', 'participants', 'npvCategories'));
     }
 
     public function update(Request $request, Auction $auction)
     {
+        abort_if($auction->status !== 'pending', 403, 'Only pending auctions can be edited.');
+
         $this->validateAuction($request);
         $this->validateNpvpPeriods($request);
 
