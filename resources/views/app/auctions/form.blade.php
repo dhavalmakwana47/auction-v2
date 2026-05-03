@@ -250,10 +250,15 @@
                         </div>
                         <div class="col-md-6 col-12">
                             <div class="form-group mb-2">
-                                <label class="mb-1">Percentage Value</label>
+                                <label class="mb-1">Percentage Value <span class="text-danger">*</span></label>
                                 <input type="number" step="0.0000001" name="npvp[{{ $i }}][percentage_value]"
-                                    class="form-control form-control-sm"
+                                    class="form-control form-control-sm npvp-pct @error('npvp.'.$i.'.percentage_value') is-invalid @enderror"
                                     value="{{ $npvp['percentage_value'] ?? '' }}" placeholder="e.g. 8.5000000">
+                                @error('npvp.'.$i.'.percentage_value')
+                                    <div class="npvp-pct-error text-danger" style="font-size:12px;">{{ $message }}</div>
+                                @else
+                                    <div class="npvp-pct-error text-danger" style="font-size:12px; display:none;"></div>
+                                @enderror
                             </div>
                         </div>
                     </div>

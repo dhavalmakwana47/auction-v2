@@ -56,10 +56,11 @@ $(function () {
                 </div>
                 <div class="col-md-6 col-12">
                     <div class="form-group mb-2">
-                        <label class="mb-1">Percentage Value</label>
+                        <label class="mb-1">Percentage Value <span class="text-danger">*</span></label>
                         <input type="number" step="0.0000001" name="npvp[${index}][percentage_value]"
-                            class="form-control form-control-sm"
+                            class="form-control form-control-sm npvp-pct"
                             placeholder="e.g. 8.5000000">
+                        <div class="npvp-pct-error text-danger" style="font-size:12px; display:none;"></div>
                     </div>
                 </div>
             </div>
@@ -91,29 +92,45 @@ $(function () {
 
         rows.find('.npvp-period').removeClass('is-invalid');
         rows.find('.npvp-error').hide().text('');
+        rows.find('.npvp-pct').removeClass('is-invalid');
+        rows.find('.npvp-pct-error').hide().text('');
 
         rows.each(function (i) {
-            var $input  = $(this).find('.npvp-period');
-            var $err    = $(this).find('.npvp-error');
-            var period  = parseInt($input.val());
+            var $periodInput = $(this).find('.npvp-period');
+            var $periodErr   = $(this).find('.npvp-error');
+            var period       = parseInt($periodInput.val());
 
             if (isNaN(period) || period <= 0) {
-                $input.addClass('is-invalid');
-                $err.text('Period must be greater than 0.').show();
+                $periodInput.addClass('is-invalid');
+                $periodErr.text('Period must be greater than 0.').show();
                 valid = false;
             } else if (i > 0 && period <= prevPeriod) {
-                $input.addClass('is-invalid');
-                $err.text('Period must be greater than previous row\'s period (' + prevPeriod + ').').show();
+                $periodInput.addClass('is-invalid');
+                $periodErr.text('Period must be greater than previous row\'s period (' + prevPeriod + ').').show();
                 valid = false;
             }
 
-            prevPeriod = period;
+            var $pctInput = $(this).find('.npvp-pct');
+            var $pctErr   = $(this).find('.npvp-pct-error');
+            var pct       = parseFloat($pctInput.val());
+
+            if ($pctInput.val() === '' || isNaN(pct) || pct < 0) {
+                $pctInput.addClass('is-invalid');
+                $pctErr.text('Percentage value is required and must be 0 or greater.').show();
+                valid = false;
+            }
+
+            prevPeriod = isNaN(period) ? prevPeriod : period;
         });
 
         return valid;
     }
 
     $(document).on('change', '.npvp-period', function () {
+        validateNpvp();
+    });
+
+    $(document).on('change', '.npvp-pct', function () {
         validateNpvp();
     });
 
