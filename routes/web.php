@@ -112,10 +112,12 @@ Route::prefix('ra')->name('ra.')->group(function () {
     Route::post('verify-otp', [RaAuthController::class, 'verifyOtp'])->name('verify-otp');
     Route::post('logout',     [RaAuthController::class, 'logout'])->name('logout');
     Route::get('dashboard',   [RaAuthController::class, 'dashboard'])->middleware(['auth', 'permission:view ra-dashboard'])->name('dashboard');
-    Route::get('auction/{auction}',      [RaAuthController::class, 'auctionPortal'])->middleware(['auth', 'permission:view ra-dashboard'])->name('auction.portal');
-    Route::get('auction/{auction}/top-bids',  [RaAuthController::class, 'topBids'])->middleware(['auth', 'permission:view ra-dashboard'])->name('auction.top-bids');
-    Route::get('auction/{auction}/my-bids',   [RaAuthController::class, 'myBids'])->middleware(['auth', 'permission:view ra-dashboard'])->name('auction.my-bids');
-    Route::post('auction/{auction}/bid',  [RaAuthController::class, 'placeBid'])->middleware(['auth', 'permission:view ra-dashboard'])->name('auction.bid');
+    Route::get('auction/{auction}',           [RaAuthController::class, 'auctionPortal'])->middleware(['auth', 'permission:view ra-dashboard'])->name('auction.portal');
+    Route::get('auction/{auction}/policy',     [RaAuthController::class, 'showPolicy'])->middleware(['auth', 'permission:view ra-dashboard'])->name('auction.policy');
+    Route::post('auction/{auction}/policy',    [RaAuthController::class, 'signPolicy'])->middleware(['auth', 'permission:view ra-dashboard'])->name('auction.policy.sign');
+    Route::get('auction/{auction}/top-bids',   [RaAuthController::class, 'topBids'])->middleware(['auth', 'permission:view ra-dashboard'])->name('auction.top-bids');
+    Route::get('auction/{auction}/my-bids',    [RaAuthController::class, 'myBids'])->middleware(['auth', 'permission:view ra-dashboard'])->name('auction.my-bids');
+    Route::post('auction/{auction}/bid',       [RaAuthController::class, 'placeBid'])->middleware(['auth', 'permission:view ra-dashboard'])->name('auction.bid');
 });
 
 require __DIR__.'/auth.php';

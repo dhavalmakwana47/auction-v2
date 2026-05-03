@@ -190,7 +190,7 @@ class AuctionController extends Controller
             'meeting_date'            => 'required|string',
             'base_price'              => 'required|string',
             'increment_amount'        => 'required|string',
-            'increment_amount_type'    => 'required|in:Recommend,Mandatory',
+            'increment_amount_type'    => 'required|in:recommend,mandatory',
             'increment_type'           => 'required|in:fixed,multiple',
             'ending_period'           => 'required|integer|min:1',
             'initial_npv_value'       => 'required|numeric|min:0.01',

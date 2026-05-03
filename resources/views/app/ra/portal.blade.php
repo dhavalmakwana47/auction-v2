@@ -32,7 +32,7 @@
 
 {{-- Stat Cards --}}
 <div class="row mb-3">
-    <div class="col-md-6 col-12 mb-3 mb-md-0">
+    <div class="col-md-4 col-12 mb-3 mb-md-0">
         <div class="ra-stat-card d-flex align-items-center justify-content-between">
             <div>
                 <div class="stat-label">Current Base Value</div>
@@ -42,7 +42,7 @@
             <div class="stat-icon"><i class="fas fa-rupee-sign text-white fa-lg"></i></div>
         </div>
     </div>
-    <div class="col-md-6 col-12">
+    <div class="col-md-4 col-12 mb-3 mb-md-0">
         <div class="ra-stat-card d-flex align-items-center justify-content-between">
             <div>
                 <div class="stat-label">Minimum Next Bid</div>
@@ -50,6 +50,16 @@
                 <div class="stat-note">Base Value + Minimum Increment</div>
             </div>
             <div class="stat-icon"><i class="fas fa-arrow-up text-white fa-lg"></i></div>
+        </div>
+    </div>
+    <div class="col-md-4 col-12">
+        <div class="ra-stat-card d-flex align-items-center justify-content-between">
+            <div>
+                <div class="stat-label">Increment Amount</div>
+                <div class="stat-value">&#8377; {{ number_format($auction->increment_amount) }}</div>
+                <div class="stat-note">{{ ucfirst($auction->increment_amount_type) }} &mdash; {{ ucfirst($auction->increment_type) }}</div>
+            </div>
+            <div class="stat-icon"><i class="fas fa-plus text-white fa-lg"></i></div>
         </div>
     </div>
 </div>
@@ -73,11 +83,21 @@
         <i class="fas fa-check-circle mr-1"></i> Valid bid amount. Now distribute across categories below.
     </div>
     <div class="ra-bid-notes mt-2">
-        <div class="note" id="note-base-value"><i class="fas fa-info-circle"></i> Must be greater than Current Base Value (&#8377; {{ number_format($highestBid) }})</div>
-        @if($auction->increment_type === 'fixed')
-        <div class="note" id="note-min-bid"><i class="fas fa-info-circle"></i> Must be at least &#8377; {{ number_format($highestBid + $auction->increment_amount) }} (Base + Increment)</div>
+        <div class="note" id="note-base-value">
+            @if($auction->increment_amount_type === 'mandatory')
+                <i class="fas fa-info-circle"></i> Must be greater than Current Base Value (&#8377; {{ number_format($highestBid) }})
+            @else
+                <i class="fas fa-info-circle"></i> Any amount is accepted (Increment is Recommended, not Mandatory)
+            @endif
+        </div>
+        @if($auction->increment_amount_type === 'mandatory')
+            @if($auction->increment_type === 'fixed')
+            <div class="note" id="note-min-bid"><i class="fas fa-info-circle"></i> Must be at least &#8377; {{ number_format($highestBid + $auction->increment_amount) }} (Base + Increment)</div>
+            @else
+            <div class="note" id="note-min-bid"><i class="fas fa-info-circle"></i> Must be a multiple of &#8377; {{ number_format($auction->increment_amount) }} (e.g. {{ number_format($highestBid + $auction->increment_amount) }}, {{ number_format($highestBid + $auction->increment_amount * 2) }}, ...)</div>
+            @endif
         @else
-        <div class="note" id="note-min-bid"><i class="fas fa-info-circle"></i> Must be a multiple of &#8377; {{ number_format($auction->increment_amount) }} (e.g. {{ number_format($highestBid + $auction->increment_amount) }}, {{ number_format($highestBid + $auction->increment_amount * 2) }}, ...)</div>
+            <div class="note" id="note-min-bid" style="color:#e67e22;"><i class="fas fa-info-circle"></i> Recommended increment: &#8377; {{ number_format($auction->increment_amount) }} (not enforced)</div>
         @endif
         <div class="note" id="note-distribute" style="color:#e67e22; display:none;"><i class="fas fa-info-circle"></i> Distribute the full bid amount across categories. Remaining: <strong id="remaining-amount">0.00</strong></div>
     </div>
@@ -257,9 +277,10 @@
 <script src="{{ asset('plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
 <script>
 $(function () {
-    var baseValue     = {{ (float) $highestBid }};
-    var increment     = {{ (float) str_replace(',', '', $auction->increment_amount) }};
-    var incrementType = '{{ $auction->increment_type }}';
+    var baseValue          = {{ (float) $highestBid }};
+    var increment          = {{ (float) str_replace(',', '', $auction->increment_amount) }};
+    var incrementType      = '{{ $auction->increment_type }}';
+    var incrementAmountType = '{{ strtolower($auction->increment_amount_type) }}';
     var bidAmount = 0;
     var csrfToken = '{{ csrf_token() }}';
     var bidUrl    = '{{ route('ra.auction.bid', $auction) }}';
@@ -402,11 +423,12 @@ $(function () {
     $('#btn-place-bid').prop('disabled', true);
 
     function validateBidAmount(value) {
-        var minBid = baseValue + increment;
         if (isNaN(value) || value <= 0) return 'Please enter a valid amount.';
-        if (value <= baseValue) return 'Amount must be greater than Current Base Value (₹ ' + baseValue.toLocaleString('en-IN') + ').';
-        if (incrementType === 'fixed' && value < minBid) return 'Amount must be at least ₹ ' + minBid.toLocaleString('en-IN') + ' (Base + Increment).';
-        if (incrementType !== 'fixed' && increment > 0 && value % increment !== 0) return 'Amount must be a multiple of ₹ ' + increment.toLocaleString('en-IN') + '.';
+        if (incrementAmountType === 'mandatory') {
+            var minBid = baseValue + increment;
+            if (value < minBid) return 'Amount must be at least ₹ ' + minBid.toLocaleString('en-IN') + ' (Base + Increment).';
+            if (incrementType !== 'fixed' && increment > 0 && Math.round(value % increment * 1e6) / 1e6 > 0.001) return 'Amount must be a multiple of ₹ ' + increment.toLocaleString('en-IN') + '.';
+        }
         return null;
     }
 
@@ -521,7 +543,9 @@ $(function () {
 
         // Update ALL hint notes with new values
         $('#note-base-value').html('<i class="fas fa-info-circle"></i> Must be greater than Current Base Value (&#8377; ' + Number(data.highest_bid).toLocaleString('en-IN') + ')');
-        $('#note-min-bid').html('<i class="fas fa-info-circle"></i> Must be at least &#8377; ' + Number(minNext).toLocaleString('en-IN') + ' (Base + Increment)');
+        if (incrementAmountType === 'mandatory') {
+            $('#note-min-bid').html('<i class="fas fa-info-circle"></i> Must be at least &#8377; ' + Number(minNext).toLocaleString('en-IN') + ' (Base + Increment)');
+        }
 
         if (topBidsDT) topBidsDT.ajax.reload(null, false);
         if (myBidsDT) myBidsDT.ajax.reload(null, false);

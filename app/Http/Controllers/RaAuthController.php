@@ -36,14 +36,44 @@ class RaAuthController extends Controller
 
         abort_if($auction->status !== 'in_progress', 403, 'This auction is not currently in progress.');
 
+        // Redirect to policy page if not yet signed
+        $participant = $auction->participants()->where('user_id', Auth::id())->first();
+        if (!$participant->sign_policy) {
+            return redirect()->route('ra.auction.policy', $auction);
+        }
+
         $auction->load(['npvCategories', 'npvpConfigurations']);
 
         $highestBid = max(
-            $auction->base_price,
+            (float) str_replace(',', '', $auction->base_price),
             $auction->bids()->where('status', 'confirmed')->max('bid_amount') ?? 0
         );
 
         return view('app.ra.portal', compact('auction', 'highestBid'));
+    }
+
+    public function showPolicy(\App\Models\Auction $auction)
+    {
+        abort_unless($auction->participants()->where('user_id', Auth::id())->exists(), 403);
+        abort_if($auction->status !== 'in_progress', 403, 'This auction is not currently in progress.');
+
+        $participant = $auction->participants()->where('user_id', Auth::id())->first();
+        if ($participant->sign_policy) {
+            return redirect()->route('ra.auction.portal', $auction);
+        }
+
+        return view('app.ra.policy', compact('auction'));
+    }
+
+    public function signPolicy(\App\Models\Auction $auction)
+    {
+        abort_unless($auction->participants()->where('user_id', Auth::id())->exists(), 403);
+
+        $auction->participants()
+            ->where('user_id', Auth::id())
+            ->update(['sign_policy' => true, 'sign_policy_at' => now()]);
+
+        return redirect()->route('ra.auction.portal', $auction);
     }
 
     public function topBids(Auction $auction)
@@ -107,23 +137,24 @@ class RaAuthController extends Controller
             $auction->bids()->where('status', 'confirmed')->max('bid_amount') ?? 0
         );
 
-        // Must be greater than current highest bid
-        if ($bidAmount <= $highestBid) {
-            return response()->json(['message' => 'Bid amount must be greater than current base value (₹' . number_format($highestBid) . ').'], 422);
-        }
-
-        // Validate based on increment_type
-        $incrementAmount = (float) str_replace(',', '', $auction->increment_amount);
-        if ($auction->increment_type === 'fixed') {
-            $minBid = $highestBid + $incrementAmount;
-            if ($bidAmount < $minBid) {
-                return response()->json(['message' => 'Bid amount must be at least ₹' . number_format($minBid) . ' (Current Base + Increment).'], 422);
+        // Validate based on increment_amount_type and increment_type
+        if ($auction->increment_amount_type === 'mandatory') {
+            if ($bidAmount <= $highestBid) {
+                return response()->json(['message' => 'Bid amount must be greater than current base value (₹' . number_format($highestBid) . ').'], 422);
             }
-        } else {
-            if ($incrementAmount > 0 && fmod($bidAmount, $incrementAmount) > 0.001) {
-                return response()->json(['message' => 'Bid amount must be a multiple of ₹' . number_format($incrementAmount) . '.'], 422);
+            $incrementAmount = (float) str_replace(',', '', $auction->increment_amount);
+            if ($auction->increment_type === 'fixed') {
+                $minBid = $highestBid + $incrementAmount;
+                if ($bidAmount < $minBid) {
+                    return response()->json(['message' => 'Bid amount must be at least ₹' . number_format($minBid) . ' (Current Base + Increment).'], 422);
+                }
+            } else {
+                if ($incrementAmount > 0 && fmod($bidAmount, $incrementAmount) > 0.001) {
+                    return response()->json(['message' => 'Bid amount must be a multiple of ₹' . number_format($incrementAmount) . '.'], 422);
+                }
             }
         }
+        // Recommend: no base value or increment enforcement — any positive amount is accepted
 
         // Validate total distributed == bid amount
         $totalDistributed = collect($distributions)->sum(fn($d) => (float) $d['amount']);
