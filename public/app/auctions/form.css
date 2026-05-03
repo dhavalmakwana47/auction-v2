@@ -1,0 +1,43 @@
+/* =============================================
+   Auctions Module - Form Page Styles
+   public/app/auctions/form.css
+   ============================================= */
+
+.form-card { border: none; border-radius: 16px; box-shadow: 0 4px 24px rgba(17,153,142,0.12); }
+.form-header { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-radius: 16px 16px 0 0; padding: 20px 24px; }
+.form-header .icon-wrap { background: rgba(255,255,255,0.2); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.form-section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #11998e; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #e0f7f5; }
+.form-control { border-radius: 10px; border: 1.5px solid #e0e0e0; padding: 10px 14px; font-size: 14px; transition: all 0.2s; }
+.form-control:focus { border-color: #11998e; box-shadow: 0 0 0 3px rgba(17,153,142,0.15); }
+.form-control.is-invalid { border-color: #e74c3c; }
+.input-icon-wrap { position: relative; }
+.input-icon-wrap .input-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #aaa; font-size: 14px; pointer-events: none; }
+.input-icon-wrap .form-control { padding-left: 36px; }
+label { font-weight: 600; font-size: 13px; color: #444; margin-bottom: 6px; }
+.btn-submit { border-radius: 10px; padding: 10px 28px; font-weight: 600; font-size: 14px; background: linear-gradient(135deg, #11998e, #38ef7d); border: none; color: #fff; transition: all 0.2s; }
+.btn-submit:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(17,153,142,0.4); color: #fff; }
+.btn-cancel { border-radius: 10px; padding: 10px 20px; font-weight: 600; font-size: 14px; }
+.breadcrumb-nav { font-size: 13px; color: #888; margin-bottom: 16px; }
+.breadcrumb-nav a { color: #11998e; text-decoration: none; }
+.breadcrumb-nav a:hover { text-decoration: underline; }
+
+/* NPVP rows */
+.npvp-row { background: #f8fffe; border: 1.5px solid #d0f0ec; border-radius: 10px; padding: 14px; margin-bottom: 10px; position: relative; }
+.npvp-row .btn-remove-npvp { position: absolute; top: 10px; right: 10px; width: 28px; height: 28px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+.btn-add-npvp { border-radius: 10px; border: 2px dashed #11998e; color: #11998e; background: transparent; font-weight: 600; font-size: 13px; padding: 8px 20px; transition: all 0.2s; }
+.btn-add-npvp:hover { background: #f0fff8; }
+
+/* Choices.js multiselect */
+.choices { font-size: 14px; }
+.choices__inner { border-radius: 10px !important; border: 1.5px solid #e0e0e0 !important; min-height: 44px !important; padding: 4px 8px !important; }
+.choices__inner:focus-within { border-color: #11998e !important; box-shadow: 0 0 0 3px rgba(17,153,142,0.15) !important; }
+.choices__list--multiple .choices__item { background-color: #11998e !important; border-color: #0d7a71 !important; border-radius: 20px !important; font-size: 12px !important; }
+.choices__list--dropdown { border-radius: 10px !important; border: 1.5px solid #e0e0e0 !important; }
+.choices__list--dropdown .choices__item--selectable.is-highlighted { background: #e0f7f5 !important; color: #11998e !important; }
+
+@media (max-width: 576px) {
+    .form-header { padding: 16px; }
+    .form-card .card-body { padding: 16px !important; }
+    .btn-submit, .btn-cancel { width: 100%; margin-bottom: 8px; }
+    .btn-cancel { margin-left: 0 !important; }
+}

@@ -1,0 +1,93 @@
+/* =============================================
+   Users Module - List Page Styles
+   public/app/users/list.css
+   ============================================= */
+
+.page-header-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px 12px 0 0;
+}
+
+.icon-circle {
+    background: rgba(255, 255, 255, 0.2);
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.badge-role {
+    background: #e8f4fd;
+    color: #2980b9;
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-block;
+    margin: 1px;
+}
+
+.badge-active {
+    background: #e8f8f0;
+    color: #27ae60;
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.badge-inactive {
+    background: #fdecea;
+    color: #e74c3c;
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.btn-action {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* DataTable overrides */
+.dataTables_wrapper .dataTables_filter input {
+    border-radius: 20px;
+    padding-left: 12px;
+    border: 1px solid #dee2e6;
+}
+
+.dataTables_wrapper .dataTables_length select {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+table.dataTable thead th {
+    background: #f8f9fa;
+    font-weight: 600;
+    font-size: 13px;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+}
+
+table.dataTable tbody tr:hover {
+    background: #f0f4ff;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .page-header-card h3 { font-size: 16px; }
+    .page-header-card .btn  { font-size: 12px; padding: 5px 10px; }
+    .card-body { padding: 10px !important; }
+}
+
+/* Loader */
+#users-loader { pointer-events: none; }
+.dataTables_processing { display: none !important; }

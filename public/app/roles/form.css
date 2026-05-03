@@ -1,0 +1,162 @@
+/* =============================================
+   Roles Module - Form Page Styles
+   public/app/roles/form.css
+   ============================================= */
+
+.form-card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(240, 147, 251, 0.12);
+}
+
+.form-header {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border-radius: 16px 16px 0 0;
+    padding: 20px 24px;
+}
+
+.form-header .icon-wrap {
+    background: rgba(255, 255, 255, 0.2);
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.form-section-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #e74c3c;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #fde8f0;
+}
+
+.form-control {
+    border-radius: 10px;
+    border: 1.5px solid #e0e0e0;
+    padding: 10px 14px;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.form-control:focus {
+    border-color: #f093fb;
+    box-shadow: 0 0 0 3px rgba(240, 147, 251, 0.15);
+}
+
+.form-control.is-invalid {
+    border-color: #e74c3c;
+}
+
+.input-icon-wrap {
+    position: relative;
+}
+
+.input-icon-wrap .input-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #aaa;
+    font-size: 14px;
+    pointer-events: none;
+}
+
+.input-icon-wrap .form-control {
+    padding-left: 36px;
+}
+
+label {
+    font-weight: 600;
+    font-size: 13px;
+    color: #444;
+    margin-bottom: 6px;
+}
+
+.perm-card {
+    border: 1.5px solid #f0e0f5;
+    border-radius: 10px;
+    padding: 10px 14px;
+    transition: all 0.2s;
+    cursor: pointer;
+    background: #fff;
+}
+
+.perm-card:hover {
+    border-color: #f093fb;
+    background: #fdf0ff;
+}
+
+.custom-control-input:checked ~ .custom-control-label::before {
+    background-color: #f5576c;
+    border-color: #f5576c;
+}
+
+.perm-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+}
+
+.select-all-wrap {
+    background: #fdf0ff;
+    border-radius: 8px;
+    padding: 8px 14px;
+    margin-bottom: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-submit {
+    border-radius: 10px;
+    padding: 10px 28px;
+    font-weight: 600;
+    font-size: 14px;
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    border: none;
+    transition: all 0.2s;
+}
+
+.btn-submit:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+}
+
+.btn-cancel {
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.breadcrumb-nav {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 16px;
+}
+
+.breadcrumb-nav a {
+    color: #f5576c;
+    text-decoration: none;
+}
+
+.breadcrumb-nav a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 576px) {
+    .form-header { padding: 16px; }
+    .form-card .card-body { padding: 16px !important; }
+    .btn-submit,
+    .btn-cancel { width: 100%; margin-bottom: 8px; }
+    .btn-cancel { margin-left: 0 !important; }
+    .perm-card { margin-bottom: 8px; }
+}

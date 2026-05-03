@@ -1,0 +1,28 @@
+/* =============================================
+   NPV Categories - List Page Styles
+   public/app/npv-categories/list.css
+   ============================================= */
+
+.page-header-card {
+    background: linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%);
+    border-radius: 12px 12px 0 0;
+}
+.icon-circle {
+    background: rgba(255,255,255,0.2);
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+}
+.badge-active   { background:#e8f8f0; color:#27ae60; border-radius:20px; padding:4px 10px; font-size:11px; font-weight:600; }
+.badge-inactive { background:#fdecea; color:#e74c3c; border-radius:20px; padding:4px 10px; font-size:11px; font-weight:600; }
+.btn-action { width:32px; height:32px; padding:0; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; }
+.dataTables_wrapper .dataTables_filter input { border-radius:20px; border:1px solid #dee2e6; padding-left:12px; }
+.dataTables_wrapper .dataTables_length select { border-radius:8px; border:1px solid #dee2e6; }
+table.dataTable thead th { background:#f8f9fa; font-weight:600; font-size:13px; color:#495057; border-bottom:2px solid #dee2e6; }
+table.dataTable tbody tr:hover { background:#fff8f0; }
+#npv-categories-loader { pointer-events:none; }
+.dataTables_processing { display:none !important; }
+@media (max-width:576px) {
+    .page-header-card h3 { font-size:16px; }
+    .card-body { padding:10px !important; }
+}
