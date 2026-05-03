@@ -179,6 +179,15 @@
     </button>
 </div>
 
+{{-- Bid Submission Loader --}}
+<div id="bid-loader-overlay">
+    <div class="bid-loader-box">
+        <div class="bid-loader-spinner"></div>
+        <div class="bid-loader-text">Submitting Bid...</div>
+        <div class="bid-loader-sub">Please do not close this window</div>
+    </div>
+</div>
+
 {{-- Top Bids Modal --}}
 <div class="modal fade" id="topBidsModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -534,8 +543,8 @@ $(function () {
     var channel = pusher.subscribe('auction.{{ $auction->id }}');
 
     channel.bind('bid.placed', function (data) {
-        baseValue = data.highest_bid;
-        var minNext = data.minimum_next;
+        baseValue = parseFloat(data.highest_bid);
+        var minNext = parseFloat(data.minimum_next);
 
         // Update stat cards
         $('.stat-value').first().html('&#8377; ' + Number(data.highest_bid).toLocaleString('en-IN'));
@@ -602,36 +611,66 @@ $(function () {
             }
         });
 
-        Swal.fire({
-            title: 'Confirm Bid',
-            html: 'You are placing a bid of <strong>' + formatINR(bidAmount) + '</strong>.<br>This action cannot be undone.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#11998e',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Yes, Place Bid!',
-            cancelButtonText: 'Cancel'
-        }).then(function (result) {
-            if (!result.isConfirmed) return;
+        function submitBid() {
+            Swal.fire({
+                title: 'Confirm Bid',
+                html: 'You are placing a bid of <strong>' + formatINR(bidAmount) + '</strong>.<br>This action cannot be undone.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#11998e',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, Place Bid!',
+                cancelButtonText: 'Cancel'
+            }).then(function (result) {
+                if (!result.isConfirmed) return;
 
-            $.ajax({
-                url: bidUrl,
-                method: 'POST',
-                headers: { 'X-CSRF-TOKEN': csrfToken },
-                contentType: 'application/json',
-                data: JSON.stringify({ bid_amount: bidAmount, distributions: distributions }),
-                success: function (res) {
-                    toastr.success(res.message);
-                    $('#btn-place-bid').prop('disabled', true);
-                    $('.npv-amount-input').prop('disabled', true);
-                },
-                error: function (xhr) {
-                    var msg = xhr.responseJSON ? xhr.responseJSON.message : 'Something went wrong.';
-                    $('#distribution-error-msg').text(msg);
-                    $('#distribution-error').show();
-                }
+                $.ajax({
+                    url: bidUrl,
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken },
+                    contentType: 'application/json',
+                    data: JSON.stringify({ bid_amount: bidAmount, distributions: distributions }),
+                    beforeSend: function () {
+                        $('#bid-loader-overlay').addClass('active');
+                    },
+                    success: function (res) {
+                        $('#bid-loader-overlay').removeClass('active');
+                        toastr.success(res.message);
+                        $('#btn-place-bid').prop('disabled', true);
+                        $('.npv-amount-input').prop('disabled', true);
+                    },
+                    error: function (xhr) {
+                        $('#bid-loader-overlay').removeClass('active');
+                        var msg = xhr.responseJSON ? xhr.responseJSON.message : 'Something went wrong.';
+                        $('#distribution-error-msg').text(msg);
+                        $('#distribution-error').show();
+                    }
+                });
             });
-        });
+        }
+
+        // For recommend type: warn if bid is below base value
+        if (incrementAmountType === 'recommend' && bidAmount < baseValue + increment) {
+            Swal.fire({
+                title: '&#9888; Bid Below Recommended Amount',
+                html: '<div style="text-align:left; font-size:13px; line-height:1.7;">' +
+                      '<p>Your bid of <strong style="color:#e74c3c;">' + formatINR(bidAmount) + '</strong> is <strong>below the recommended minimum</strong> of <strong style="color:#11998e;">' + formatINR(baseValue + increment) + '</strong>.</p>' +
+                      '<p style="margin-top:8px;">Submitting a bid lower than the current base value may result in your bid being considered <strong>non-compliant</strong> during the evaluation process.</p>' +
+                      '<p style="margin-top:8px; color:#888;">Do you still wish to proceed with this bid?</p>' +
+                      '</div>',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e67e22',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="fas fa-exclamation-triangle mr-1"></i> Yes, Submit Anyway',
+                cancelButtonText: 'No, Let Me Revise',
+                reverseButtons: true
+            }).then(function (result) {
+                if (result.isConfirmed) submitBid();
+            });
+        } else {
+            submitBid();
+        }
     });
 });
 </script>

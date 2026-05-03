@@ -447,17 +447,18 @@ $(function () {
         encrypted: true
     });
     pusher.subscribe('auction.{{ $auction->id }}').bind('bid.placed', function (data) {
+        var highestBid = parseFloat(data.highest_bid);
+        var totalNpv   = parseFloat(data.total_npv);
         // Summary cards
         $('#cp-total-bids').text(data.total_bids);
         $('#cp-valid-bids').text(data.valid_bids);
-        $('#cp-current-base').html('&#8377; ' + Number(data.highest_bid).toLocaleString('en-IN'));
+        $('#cp-current-base').html('&#8377; ' + highestBid.toLocaleString('en-IN'));
         $('#cp-current-base-sub').text('(From highest valid bid)');
-        $('#cp-current-npv').html('&#8377; ' + Number(data.total_npv).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+        $('#cp-current-npv').html('&#8377; ' + totalNpv.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
         $('#cp-current-npv-sub').text('(From highest valid bid)');
 
         // Prepend new row to timeline table
         $('#cp-no-bids-row').remove();
-        var rowCount = $('#cp-bid-tbody tr').length + 1;
         $('#cp-bid-tbody tr').each(function () {
             var $num = $(this).find('.bid-row-num');
             $num.text(parseInt($num.text()) + 1);
@@ -466,8 +467,8 @@ $(function () {
             '<td class="bid-row-num">1</td>' +
             '<td style="white-space:nowrap;">' + data.placed_at + '</td>' +
             '<td class="font-weight-600">' + data.ra_name + '</td>' +
-            '<td>&#8377; ' + Number(data.bid_amount).toLocaleString('en-IN') + '</td>' +
-            '<td>&#8377; ' + Number(data.total_npv).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>' +
+            '<td>&#8377; ' + parseFloat(data.bid_amount).toLocaleString('en-IN') + '</td>' +
+            '<td>&#8377; ' + totalNpv.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>' +
             '<td class="text-valid"><i class="fas fa-check-circle mr-1"></i> Valid Bid</td>' +
             '</tr>';
         $('#cp-bid-tbody').prepend(newRow);

@@ -100,8 +100,8 @@
                             <i class="fas fa-tag input-icon"></i>
                             <select name="increment_amount_type" class="form-control @error('increment_amount_type') is-invalid @enderror">
                                 <option value="">-- Select Type --</option>
-                                <option value="Recommend" {{ old('increment_amount_type', $auction->increment_amount_type ?? '') == 'Recommend' ? 'selected' : '' }}>Recommend</option>
-                                <option value="Mandatory" {{ old('increment_amount_type', $auction->increment_amount_type ?? '') == 'Mandatory' ? 'selected' : '' }}>Mandatory</option>
+                                <option value="recommend" {{ old('increment_amount_type', $auction->increment_amount_type ?? '') == 'recommend' ? 'selected' : '' }}>Recommend</option>
+                                <option value="mandatory" {{ old('increment_amount_type', $auction->increment_amount_type ?? '') == 'mandatory' ? 'selected' : '' }}>Mandatory</option>
                             </select>
                         </div>
                         @error('increment_amount_type')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
