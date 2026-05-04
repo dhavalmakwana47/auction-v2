@@ -27,48 +27,20 @@
         @endcanany
 
         @can('view npv-categories')
-        <li class="nav-item {{ Request::routeIs('npv-categories.*') ? 'menu-open' : '' }}">
-            <a href="#" class="nav-link {{ Request::routeIs('npv-categories.*') ? 'active' : '' }}">
+        <li class="nav-item">
+            <a href="{{ route('npv-categories.index') }}" class="nav-link {{ Request::routeIs('npv-categories.*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-tags"></i>
-                <p>NPV Categories <i class="right fas fa-angle-left"></i></p>
+                <p>NPV Categories</p>
             </a>
-            <ul class="nav nav-treeview">
-                <li class="nav-item">
-                    <a href="{{ route('npv-categories.index') }}" class="nav-link {{ Request::routeIs('npv-categories.index') ? 'active' : '' }}">
-                        <i class="far fa-dot-circle nav-icon"></i><p>All Categories</p>
-                    </a>
-                </li>
-                @can('create npv-categories')
-                <li class="nav-item">
-                    <a href="{{ route('npv-categories.create') }}" class="nav-link {{ Request::routeIs('npv-categories.create') ? 'active' : '' }}">
-                        <i class="far fa-dot-circle nav-icon"></i><p>Add Category</p>
-                    </a>
-                </li>
-                @endcan
-            </ul>
         </li>
         @endcan
 
         @can('view auctions')
-        <li class="nav-item {{ Request::routeIs('auctions.*') ? 'menu-open' : '' }}">
-            <a href="#" class="nav-link {{ Request::routeIs('auctions.*') ? 'active' : '' }}">
+        <li class="nav-item">
+            <a href="{{ route('auctions.index') }}" class="nav-link {{ Request::routeIs('auctions.*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-gavel"></i>
-                <p>Auctions <i class="right fas fa-angle-left"></i></p>
+                <p>Auctions</p>
             </a>
-            <ul class="nav nav-treeview">
-                <li class="nav-item">
-                    <a href="{{ route('auctions.index') }}" class="nav-link {{ Request::routeIs('auctions.index') ? 'active' : '' }}">
-                        <i class="far fa-dot-circle nav-icon"></i><p>All Auctions</p>
-                    </a>
-                </li>
-                @can('create auctions')
-                <li class="nav-item">
-                    <a href="{{ route('auctions.create') }}" class="nav-link {{ Request::routeIs('auctions.create') ? 'active' : '' }}">
-                        <i class="far fa-dot-circle nav-icon"></i><p>Add Auction</p>
-                    </a>
-                </li>
-                @endcan
-            </ul>
         </li>
         @endcan
 
@@ -78,48 +50,20 @@
         @endcanany
 
         @can('view users')
-        <li class="nav-item {{ Request::routeIs('users.*') ? 'menu-open' : '' }}">
-            <a href="#" class="nav-link {{ Request::routeIs('users.*') ? 'active' : '' }}">
+        <li class="nav-item">
+            <a href="{{ route('users.index') }}" class="nav-link {{ Request::routeIs('users.*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-users"></i>
-                <p>Users <i class="right fas fa-angle-left"></i></p>
+                <p>Users</p>
             </a>
-            <ul class="nav nav-treeview">
-                <li class="nav-item">
-                    <a href="{{ route('users.index') }}" class="nav-link {{ Request::routeIs('users.index') ? 'active' : '' }}">
-                        <i class="far fa-dot-circle nav-icon"></i><p>All Users</p>
-                    </a>
-                </li>
-                @can('create users')
-                <li class="nav-item">
-                    <a href="{{ route('users.create') }}" class="nav-link {{ Request::routeIs('users.create') ? 'active' : '' }}">
-                        <i class="far fa-dot-circle nav-icon"></i><p>Add User</p>
-                    </a>
-                </li>
-                @endcan
-            </ul>
         </li>
         @endcan
 
         @can('view roles')
-        <li class="nav-item {{ Request::routeIs('roles.*') ? 'menu-open' : '' }}">
-            <a href="#" class="nav-link {{ Request::routeIs('roles.*') ? 'active' : '' }}">
+        <li class="nav-item">
+            <a href="{{ route('roles.index') }}" class="nav-link {{ Request::routeIs('roles.*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-user-tag"></i>
-                <p>Roles <i class="right fas fa-angle-left"></i></p>
+                <p>Roles</p>
             </a>
-            <ul class="nav nav-treeview">
-                <li class="nav-item">
-                    <a href="{{ route('roles.index') }}" class="nav-link {{ Request::routeIs('roles.index') ? 'active' : '' }}">
-                        <i class="far fa-dot-circle nav-icon"></i><p>All Roles</p>
-                    </a>
-                </li>
-                @can('create roles')
-                <li class="nav-item">
-                    <a href="{{ route('roles.create') }}" class="nav-link {{ Request::routeIs('roles.create') ? 'active' : '' }}">
-                        <i class="far fa-dot-circle nav-icon"></i><p>Add Role</p>
-                    </a>
-                </li>
-                @endcan
-            </ul>
         </li>
         @endcan
 

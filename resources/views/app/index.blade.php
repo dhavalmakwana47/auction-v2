@@ -31,8 +31,8 @@
         <small>Overview of all auctions</small>
     </div>
     <div class="status-filter-wrap mt-2 mt-sm-0">
-        <button class="btn-status-filter active" data-status="">All</button>
-        <button class="btn-status-filter" data-status="pending">Pending</button>
+        <button class="btn-status-filter" data-status="">All</button>
+        <button class="btn-status-filter active" data-status="pending">Pending</button>
         <button class="btn-status-filter" data-status="in_progress">In Progress</button>
         <button class="btn-status-filter" data-status="completed">Completed</button>
     </div>
@@ -50,6 +50,18 @@
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
                         <div style="flex:1; min-width:0;">
+                            {{-- Current Values at top --}}
+                            <div class="d-flex mb-2" style="gap:12px; flex-wrap:wrap;">
+                                <div style="background:#e8f8f0; border-radius:8px; padding:6px 12px; font-size:12px;">
+                                    <div style="color:#888; font-size:10px; font-weight:600; text-transform:uppercase;">Current Base Value</div>
+                                    <div style="color:#27ae60; font-weight:700;"><i class="fas fa-rupee-sign mr-1"></i>{{ number_format($auction->base_price) }}</div>
+                                </div>
+                                <div style="background:#e8f4fd; border-radius:8px; padding:6px 12px; font-size:12px;">
+                                    <div style="color:#888; font-size:10px; font-weight:600; text-transform:uppercase;">Current NPV Value</div>
+                                    <div style="color:#2980b9; font-weight:700;"><i class="fas fa-rupee-sign mr-1"></i>{{ number_format($auction->initial_npv_value, 2) }}</div>
+                                </div>
+                            </div>
+                            {{-- Title & Status --}}
                             <div class="d-flex align-items-center mb-1" style="gap:8px;">
                                 <div class="ra-auction-title mb-0">{{ $auction->corporate_debtor_name }}</div>
                                 <span class="badge-status badge-status-{{ $auction->status }}">
@@ -58,7 +70,6 @@
                             </div>
                             <div class="ra-auction-meta">
                                 <span><i class="fas fa-calendar-alt mr-1"></i> {{ $auction->meeting_date }}</span>
-                                <span class="ml-3"><i class="fas fa-rupee-sign mr-1"></i> Base: {{ number_format($auction->base_price) }}</span>
                             </div>
                             <div class="ra-auction-meta mt-1">
                                 <i class="fas fa-tags mr-1"></i>
@@ -87,21 +98,25 @@
 @section('footer-script')
 <script>
 $(function () {
-    $('.btn-status-filter').on('click', function () {
-        var status = $(this).data('status');
 
-        $('.btn-status-filter').removeClass('active');
-        $(this).addClass('active');
-
+    function applyFilter(status) {
         var visible = 0;
         $('.auction-item').each(function () {
             var match = !status || $(this).data('status') === status;
             $(this).toggle(match);
             if (match) visible++;
         });
-
         $('#no-results').toggle(visible === 0);
+    }
+
+    $('.btn-status-filter').on('click', function () {
+        $('.btn-status-filter').removeClass('active');
+        $(this).addClass('active');
+        applyFilter($(this).data('status'));
     });
+
+    // default: show pending on load
+    applyFilter('pending');
 });
 </script>
 @endsection

@@ -26,7 +26,7 @@ Route::get('/', function () {
 Route::get('/dashboard', [AuctionController::class, 'dashboard'])
     ->middleware(['auth', 'verified', 'permission:view dashboard'])->name('dashboard');
 
-Route::middleware(['auth', 'role:admin|scrutinizer|bidder'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

@@ -175,56 +175,12 @@
     </div>
 </div>
 
-{{-- ── Summary Cards Row 1: Configured Values ── --}}
+{{-- ── Summary Cards Row 1: Current Live Values ── --}}
 @php
     $highestBid = $auction->bids->where('status', 'confirmed')->sortByDesc('bid_amount')->first();
 @endphp
 <div class="row mb-3">
-    <div class="col-md-3 col-6 mb-3">
-        <div class="summary-card d-flex align-items-center justify-content-between">
-            <div>
-                <div class="s-label">Base Value</div>
-                <div class="s-value">&#8377; {{ number_format($auction->base_price) }}</div>
-                <div class="s-sub">(Configured)</div>
-            </div>
-            <div class="s-icon"><i class="fas fa-rupee-sign text-white fa-lg"></i></div>
-        </div>
-    </div>
-    <div class="col-md-3 col-6 mb-3">
-        <div class="summary-card d-flex align-items-center justify-content-between">
-            <div>
-                <div class="s-label">Initial NPV Value</div>
-                <div class="s-value">&#8377; {{ number_format($auction->initial_npv_value, 2) }}</div>
-                <div class="s-sub">(Configured)</div>
-            </div>
-            <div class="s-icon"><i class="fas fa-chart-line text-white fa-lg"></i></div>
-        </div>
-    </div>
-    <div class="col-md-3 col-6 mb-3">
-        <div class="summary-card d-flex align-items-center justify-content-between">
-            <div>
-                <div class="s-label">Minimum Increment</div>
-                <div class="s-value">&#8377; {{ number_format($auction->increment_amount) }}</div>
-                <div class="s-sub">(Configured by RP)</div>
-            </div>
-            <div class="s-icon"><i class="fas fa-plus text-white fa-lg"></i></div>
-        </div>
-    </div>
-    <div class="col-md-3 col-6 mb-3">
-        <div class="summary-card d-flex align-items-center justify-content-between">
-            <div>
-                <div class="s-label">Total Bids</div>
-                <div class="s-value" id="cp-total-bids">{{ $auction->bids->count() }}</div>
-                <div class="s-sub">(Valid: <span id="cp-valid-bids">{{ $auction->bids->where('status', 'confirmed')->count() }}</span>)</div>
-            </div>
-            <div class="s-icon"><i class="fas fa-gavel text-white fa-lg"></i></div>
-        </div>
-    </div>
-</div>
-
-{{-- ── Summary Cards Row 2: Current Live Values ── --}}
-<div class="row mb-4">
-    <div class="col-md-6 col-12 mb-3 mb-md-0">
+    <div class="col-md-6 col-12 mb-3">
         <div class="summary-card d-flex align-items-center justify-content-between" style="border-left-color:#2980b9;">
             <div>
                 <div class="s-label" style="color:#2980b9;">Current Base Value</div>
@@ -234,7 +190,7 @@
             <div class="s-icon" style="background:linear-gradient(135deg,#2980b9,#6dd5fa);"><i class="fas fa-arrow-trend-up text-white fa-lg"></i></div>
         </div>
     </div>
-    <div class="col-md-6 col-12">
+    <div class="col-md-6 col-12 mb-3">
         <div class="summary-card d-flex align-items-center justify-content-between" style="border-left-color:#8e44ad;">
             <div>
                 <div class="s-label" style="color:#8e44ad;">Current NPV Value</div>
@@ -242,6 +198,26 @@
                 <div class="s-sub" id="cp-current-npv-sub">{{ $highestBid ? '(From highest valid bid)' : '(No bids yet — showing configured)' }}</div>
             </div>
             <div class="s-icon" style="background:linear-gradient(135deg,#8e44ad,#c39bd3);"><i class="fas fa-chart-bar text-white fa-lg"></i></div>
+        </div>
+    </div>
+    <div class="col-md-6 col-12 mb-3">
+        <div class="summary-card d-flex align-items-center justify-content-between">
+            <div>
+                <div class="s-label">Minimum Increment</div>
+                <div class="s-value">&#8377; {{ number_format($auction->increment_amount) }}</div>
+                <div class="s-sub">(Configured by RP)</div>
+            </div>
+            <div class="s-icon"><i class="fas fa-plus text-white fa-lg"></i></div>
+        </div>
+    </div>
+    <div class="col-md-6 col-12 mb-3">
+        <div class="summary-card d-flex align-items-center justify-content-between">
+            <div>
+                <div class="s-label">Total Bids</div>
+                <div class="s-value" id="cp-total-bids">{{ $auction->bids->count() }}</div>
+                <div class="s-sub">(Valid: <span id="cp-valid-bids">{{ $auction->bids->where('status', 'confirmed')->count() }}</span>)</div>
+            </div>
+            <div class="s-icon"><i class="fas fa-gavel text-white fa-lg"></i></div>
         </div>
     </div>
 </div>
@@ -266,7 +242,6 @@
                         <tr>
                             <th>#</th>
                             <th>Date / Time</th>
-                            <th>RA Name</th>
                             <th>Resolution Amount</th>
                             <th>NPV of RA Amount</th>
                             <th>Remarks</th>
@@ -278,7 +253,6 @@
                         <tr>
                             <td class="bid-row-num">{{ $i + 1 }}</td>
                             <td style="white-space:nowrap;">{{ $bid->created_at->format('d M Y, h:i A') }}</td>
-                            <td class="font-weight-600">{{ $bid->user->name ?? '—' }}</td>
                             <td>₹ {{ number_format($bid->bid_amount) }}</td>
                             <td>₹ {{ number_format($bid->total_npv, 2) }}</td>
                             <td class="{{ $isValid ? 'text-valid' : 'text-invalid' }}">
@@ -466,7 +440,6 @@ $(function () {
         var newRow = '<tr style="background:#f0fff8;">' +
             '<td class="bid-row-num">1</td>' +
             '<td style="white-space:nowrap;">' + data.placed_at + '</td>' +
-            '<td class="font-weight-600">' + data.ra_name + '</td>' +
             '<td>&#8377; ' + parseFloat(data.bid_amount).toLocaleString('en-IN') + '</td>' +
             '<td>&#8377; ' + totalNpv.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>' +
             '<td class="text-valid"><i class="fas fa-check-circle mr-1"></i> Valid Bid</td>' +

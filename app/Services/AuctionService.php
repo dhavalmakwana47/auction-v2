@@ -12,7 +12,7 @@ class AuctionService
 {
     public function datatable()
     {
-        $auctions = Auction::query();
+        $auctions = Auction::where('created_by', Auth::id());
 
         return DataTables::eloquent($auctions)
             ->addIndexColumn()
@@ -34,11 +34,10 @@ class AuctionService
 
     public function dashboardDatatable()
     {
-        $auctions = Auction::query();
+        $auctions = Auction::where('created_by', Auth::id());
 
-        if (request()->filled('status')) {
-            $auctions->where('status', request('status'));
-        }
+        $status = request('status', 'pending');
+        $auctions->where('status', $status);
 
         return DataTables::eloquent($auctions)
             ->addIndexColumn()

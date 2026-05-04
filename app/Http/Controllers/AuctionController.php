@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Auction;
 use App\Services\AuctionService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class AuctionController extends Controller
@@ -18,7 +19,9 @@ class AuctionController extends Controller
 
     public function dashboard()
     {
-        $auctions = Auction::with('npvCategories')->get();
+        $auctions = Auction::with('npvCategories')
+            ->where('created_by', Auth::id())
+            ->get();
         return view('app.index', compact('auctions'));
     }
 
