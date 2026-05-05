@@ -5,10 +5,10 @@
 
 @section('content')
 <style>
-    .login-page { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .login-page { background: linear-gradient(135deg, #0d6efd 0%, #38b6ff 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
     .login-box { width: 380px; }
     .ra-login-card { border: none; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); overflow: hidden; }
-    .ra-login-header { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); padding: 32px 24px 24px; text-align: center; }
+    .ra-login-header { background: linear-gradient(135deg, #0d6efd 0%, #38b6ff 100%); padding: 32px 24px 24px; text-align: center; }
     .ra-login-header .icon-wrap { width: 64px; height: 64px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
     .ra-login-header h4 { color: #fff; font-weight: 700; font-size: 20px; margin: 0 0 4px; }
     .ra-login-header p { color: rgba(255,255,255,0.8); font-size: 13px; margin: 0; }
@@ -17,12 +17,12 @@
     .ra-input-wrap { position: relative; }
     .ra-input-wrap .ra-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #aaa; font-size: 14px; }
     .ra-input-wrap .form-control { padding-left: 36px; border-radius: 10px; border: 1.5px solid #e0e0e0; height: 44px; font-size: 14px; transition: all 0.2s; }
-    .ra-input-wrap .form-control:focus { border-color: #11998e; box-shadow: 0 0 0 3px rgba(17,153,142,0.15); }
+    .ra-input-wrap .form-control:focus { border-color: #0d6efd; box-shadow: 0 0 0 3px rgba(13,110,253,0.15); }
     .ra-input-wrap .form-control.is-invalid { border-color: #e74c3c; }
-    .btn-ra { background: linear-gradient(135deg, #11998e, #38ef7d); border: none; border-radius: 10px; color: #fff; font-weight: 600; font-size: 14px; height: 44px; width: 100%; transition: all 0.2s; }
-    .btn-ra:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(17,153,142,0.4); color: #fff; }
+    .btn-ra { background: linear-gradient(135deg, #0d6efd, #38b6ff); border: none; border-radius: 10px; color: #fff; font-weight: 600; font-size: 14px; height: 44px; width: 100%; transition: all 0.2s; }
+    .btn-ra:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(13,110,253,0.4); color: #fff; }
     .ra-footer-link { text-align: center; font-size: 12px; color: #aaa; margin-top: 16px; }
-    .ra-footer-link a { color: #11998e; font-weight: 600; text-decoration: none; }
+    .ra-footer-link a { color: #0d6efd; font-weight: 600; text-decoration: none; }
     .ra-footer-link a:hover { text-decoration: underline; }
     .ra-step-badge { display: inline-block; background: rgba(255,255,255,0.25); color: #fff; font-size: 11px; font-weight: 600; border-radius: 20px; padding: 3px 12px; margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase; }
 </style>

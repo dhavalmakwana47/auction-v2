@@ -30,12 +30,61 @@
     <!-- summernote -->
     {{-- <link rel="stylesheet" href="plugins/summernote/summernote-bs4.min.css"> --}}
     <style>
-        .error{
-            color: red;
+        .error { color: red; }
+        .content-wrapper { background-color: #f4f8ff !important; }
+        .main-sidebar {
+            background: linear-gradient(180deg, #0a3d91 0%, #0d6efd 60%, #0a58ca 100%) !important;
         }
-        .content-wrapper {
-    background-color: #f4f6f9 !important;   /* AdminLTE light grey */
-}
+        .brand-link {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.18) !important;
+            padding: 14px 14px !important;
+        }
+        .brand-text {
+            color: #ffffff !important;
+            font-weight: 600 !important;
+            letter-spacing: 0.5px;
+        }
+        .user-panel {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.18) !important;
+            padding: 8px 8px 12px !important;
+        }
+        .user-panel .info a {
+            color: #ffffff !important;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .sidebar .nav-header {
+            color: rgba(255, 255, 255, 0.72) !important;
+            font-weight: 700;
+            padding-left: 12px !important;
+            margin-top: 10px;
+        }
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.95) !important;
+            border-radius: 10px;
+            margin: 2px 8px;
+            padding: 10px 12px !important;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .sidebar .nav-link .nav-icon {
+            color: #ffffff !important;
+            opacity: 0.95;
+            font-size: 14px !important;
+        }
+        .sidebar .nav-link.active {
+            background: #ffffff !important;
+            color: #0d47a1 !important;
+            box-shadow: 0 6px 16px rgba(5, 26, 64, 0.28);
+        }
+        .sidebar .nav-link.active .nav-icon {
+            color: #0d47a1 !important;
+        }
+        .sidebar .nav-link:hover {
+            background: rgba(255, 255, 255, 0.18) !important;
+            color: #ffffff !important;
+        }
     </style>
 </head>
 
@@ -48,7 +97,7 @@
   </div> --}}
 
         <!-- Main Sidebar Container -->
-        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+        <aside class="main-sidebar elevation-4">
             <!-- Brand Logo -->
             <a href="" class="brand-link">
                 <!--<img src="{{ asset('homepage/assets/img/logo.png') }}" alt="AdminLTE Logo"

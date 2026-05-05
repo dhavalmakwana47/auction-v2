@@ -3,7 +3,6 @@
 
 @section('header-script')
 <link rel="stylesheet" href="{{ asset('plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
-<link rel="stylesheet" href="{{ asset('plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
 <link rel="stylesheet" href="{{ asset('app/npv-categories/list.css') }}">
 @endsection
 
@@ -27,7 +26,7 @@
 
     <div class="card-body p-0 p-md-3">
         <div id="npv-categories-loader" class="text-center py-3" style="display:none;">
-            <i class="fas fa-spinner fa-spin fa-2x" style="color:#fc4a1a;"></i>
+            <i class="fas fa-spinner fa-spin fa-2x" style="color:#0d6efd;"></i>
             <p class="text-muted mt-2 mb-0" style="font-size:13px;">Loading...</p>
         </div>
         <div class="table-responsive">
@@ -38,7 +37,7 @@
                         <th>Name</th>
                        <th>Description</th>
                         <th>Status</th>
-                        <th class="none">Created Date</th>
+                        <th>Created Date</th>
                         <th class="text-center">Action</th>
                     </tr>
                 </thead>
@@ -51,8 +50,6 @@
 @section('footer-script')
 <script src="{{ asset('plugins/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-<script src="{{ asset('plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
-<script src="{{ asset('plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
 <script>
     var npvCategoriesConfig = {
         datatableUrl: '{{ route('npv-categories.datatable') }}',

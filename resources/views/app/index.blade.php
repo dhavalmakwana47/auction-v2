@@ -11,7 +11,7 @@
         background: rgba(255,255,255,0.15); color: #fff; transition: all 0.2s;
     }
     .btn-status-filter:hover, .btn-status-filter.active {
-        background: #fff; color: #11998e;
+        background: #fff; color: #0d6efd;
     }
     .badge-status {
         display: inline-block; border-radius: 20px;

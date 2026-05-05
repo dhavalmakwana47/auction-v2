@@ -3,7 +3,6 @@
 
 @section('header-script')
 <link rel="stylesheet" href="{{ asset('plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
-<link rel="stylesheet" href="{{ asset('plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
 <link rel="stylesheet" href="{{ asset('app/roles/list.css') }}">
 @endsection
 
@@ -36,8 +35,8 @@
                     <tr>
                         <th width="50">#</th>
                         <th>Role Name</th>
-                        <th class="none">Permissions</th>
-                        <th class="none">Created Date</th>
+                        <th>Permissions</th>
+                        <th>Created Date</th>
                         <th class="text-center">Action</th>
                     </tr>
                 </thead>
@@ -51,8 +50,6 @@
 @section('footer-script')
 <script src="{{ asset('plugins/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-<script src="{{ asset('plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
-<script src="{{ asset('plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
 <script>
     var rolesConfig = {
         datatableUrl: '{{ route('roles.datatable') }}',

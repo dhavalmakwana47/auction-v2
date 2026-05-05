@@ -21,11 +21,11 @@
     </div>
     <div class="d-flex align-items-center" style="gap:10px;">
         <button class="btn btn-sm font-weight-600" id="btn-top-bids"
-            style="border-radius:20px; font-size:13px; background:linear-gradient(135deg,#f39c12,#f1c40f); color:#fff; border:none; padding:6px 16px;">
+            style="border-radius:20px; font-size:13px; background:linear-gradient(135deg,#0d6efd,#38b6ff); color:#fff; border:none; padding:6px 16px;">
             <i class="fas fa-trophy mr-1"></i> Top Bids
         </button>
         <button class="btn btn-sm font-weight-600" id="btn-my-bids"
-            style="border-radius:20px; font-size:13px; background:linear-gradient(135deg,#2980b9,#6dd5fa); color:#fff; border:none; padding:6px 16px;">
+            style="border-radius:20px; font-size:13px; background:linear-gradient(135deg,#0d6efd,#38b6ff); color:#fff; border:none; padding:6px 16px;">
             <i class="fas fa-list-alt mr-1"></i> My Bids
         </button>
         <a href="{{ route('ra.dashboard') }}" class="btn btn-light btn-sm font-weight-600" style="border-radius:20px; font-size:13px;">
@@ -73,7 +73,7 @@
     <div id="bid-error" style="display:none; font-size:12px; color:#e74c3c;" class="mt-1">
         <i class="fas fa-exclamation-circle mr-1"></i><span id="bid-error-msg"></span>
     </div>
-    <div id="bid-valid-msg" style="display:none; font-size:12px; color:#11998e;" class="mt-1">
+    <div id="bid-valid-msg" style="display:none; font-size:12px; color:#0d6efd;" class="mt-1">
         <i class="fas fa-check-circle mr-1"></i> Valid bid amount. Now distribute across categories below.
     </div>
     <div class="ra-bid-notes mt-2">
@@ -91,9 +91,9 @@
             <div class="note" id="note-min-bid"><i class="fas fa-info-circle"></i> Must be a multiple of &#8377; {{ number_format($auction->increment_amount) }} (e.g. {{ number_format($highestBid + $auction->increment_amount) }}, {{ number_format($highestBid + $auction->increment_amount * 2) }}, ...)</div>
             @endif
         @else
-            <div class="note" id="note-min-bid" style="color:#e67e22;"><i class="fas fa-info-circle"></i> Recommended increment: &#8377; {{ number_format($auction->increment_amount) }} (not enforced)</div>
+        <div class="note" id="note-min-bid" style="color:#0d6efd;"><i class="fas fa-info-circle"></i> Recommended increment: &#8377; {{ number_format($auction->increment_amount) }} (not enforced)</div>
         @endif
-        <div class="note" id="note-distribute" style="color:#e67e22; display:none;"><i class="fas fa-info-circle"></i> Distribute the full bid amount across categories. Remaining: <strong id="remaining-amount">0.00</strong></div>
+        <div class="note" id="note-distribute" style="color:#0d6efd; display:none;"><i class="fas fa-info-circle"></i> Distribute the full bid amount across categories. Remaining: <strong id="remaining-amount">0.00</strong></div>
     </div>
 </div>
 
@@ -139,7 +139,7 @@
                 @endforelse
             </tbody>
             <tfoot>
-                <tr class="total-row" style="background:#e0f7f5;">
+                <tr class="total-row" style="background:#edf5ff;">
                     <td class="font-weight-700">Total Amount</td>
                     @foreach($auction->npvpConfigurations as $npvp)
                         <td class="font-weight-700 col-total" data-period="{{ $npvp->period }}">0.00</td>
@@ -182,7 +182,7 @@
 <div class="modal fade" id="topBidsModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content" style="border-radius:16px; border:none; overflow:hidden;">
-            <div class="modal-header" style="background:linear-gradient(135deg,#f39c12,#f1c40f); border:none; padding:16px 24px;">
+            <div class="modal-header" style="background:linear-gradient(135deg,#0d6efd,#38b6ff); border:none; padding:16px 24px;">
                 <div>
                     <h5 class="modal-title text-white font-weight-bold mb-0" style="font-size:15px;">
                         <i class="fas fa-trophy mr-2"></i> Top 10 Bids
@@ -193,13 +193,13 @@
             </div>
 
             {{-- Summary strip --}}
-            <div class="d-flex" style="background:#fffbf0; border-bottom:1px solid #fde8a0; padding:12px 20px; gap:24px; flex-wrap:wrap;">
+            <div class="d-flex" style="background:#edf5ff; border-bottom:1px solid #dbeafe; padding:12px 20px; gap:24px; flex-wrap:wrap;">
                 <div style="font-size:12px; color:#555;">
-                    <i class="fas fa-crown mr-1" style="color:#f39c12;"></i>
+                    <i class="fas fa-crown mr-1" style="color:#0d6efd;"></i>
                     Highest Bid: <strong id="top-bids-highest">&mdash;</strong>
                 </div>
                 <div style="font-size:12px; color:#555;">
-                    <i class="fas fa-chart-line mr-1" style="color:#f39c12;"></i>
+                    <i class="fas fa-chart-line mr-1" style="color:#0d6efd;"></i>
                     Highest NPV: <strong id="top-bids-npv">&mdash;</strong>
                 </div>
             </div>
@@ -207,11 +207,11 @@
             <div class="modal-body" style="padding:16px 20px;">
                 <table id="top-bids-table" class="table table-hover mb-0" style="width:100%; font-size:13px;">
                     <thead>
-                        <tr style="background:#fef9e7;">
-                            <th style="width:40px; color:#e67e22;">#</th>
-                            <th style="color:#e67e22;">Bid Amount</th>
-                            <th style="color:#e67e22;">NPV Amount</th>
-                            <th style="color:#e67e22;">Date / Time</th>
+                        <tr style="background:#edf5ff;">
+                            <th style="width:40px; color:#0d6efd;">#</th>
+                            <th style="color:#0d6efd;">Bid Amount</th>
+                            <th style="color:#0d6efd;">NPV Amount</th>
+                            <th style="color:#0d6efd;">Date / Time</th>
                         </tr>
                     </thead>
                 </table>
@@ -224,7 +224,7 @@
 <div class="modal fade" id="myBidsModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content" style="border-radius:16px; border:none; overflow:hidden;">
-            <div class="modal-header" style="background:linear-gradient(135deg,#2980b9,#6dd5fa); border:none; padding:16px 24px;">
+            <div class="modal-header" style="background:linear-gradient(135deg,#0d6efd,#38b6ff); border:none; padding:16px 24px;">
                 <div>
                     <h5 class="modal-title text-white font-weight-bold mb-0" style="font-size:15px;">
                         <i class="fas fa-list-alt mr-2"></i> My Bids
@@ -237,7 +237,7 @@
             {{-- Summary strip --}}
             <div class="d-flex" style="background:#f0f8ff; border-bottom:1px solid #d0e8f8; padding:12px 20px; gap:24px; flex-wrap:wrap;">
                 <div style="font-size:12px; color:#555;">
-                    <i class="fas fa-gavel mr-1" style="color:#2980b9;"></i>
+                    <i class="fas fa-gavel mr-1" style="color:#0d6efd;"></i>
                     Total Bids: <strong id="my-bids-total">—</strong>
                 </div>
                 <div style="font-size:12px; color:#555;">
@@ -245,7 +245,7 @@
                     Valid: <strong id="my-bids-valid">—</strong>
                 </div>
                 <div style="font-size:12px; color:#555;">
-                    <i class="fas fa-arrow-up mr-1" style="color:#e67e22;"></i>
+                    <i class="fas fa-arrow-up mr-1" style="color:#0d6efd;"></i>
                     Highest: <strong id="my-bids-highest">—</strong>
                 </div>
             </div>
@@ -254,11 +254,11 @@
                 <table id="my-bids-table" class="table table-hover mb-0" style="width:100%; font-size:13px;">
                     <thead>
                         <tr style="background:#eaf4fd;">
-                            <th style="width:40px; color:#2980b9;">#</th>
-                            <th style="color:#2980b9;">Bid Amount</th>
-                            <th style="color:#2980b9;">NPV Amount</th>
-                            <th style="color:#2980b9;">Status</th>
-                            <th style="color:#2980b9;">Date / Time</th>
+                            <th style="width:40px; color:#0d6efd;">#</th>
+                            <th style="color:#0d6efd;">Bid Amount</th>
+                            <th style="color:#0d6efd;">NPV Amount</th>
+                            <th style="color:#0d6efd;">Status</th>
+                            <th style="color:#0d6efd;">Date / Time</th>
                         </tr>
                     </thead>
                 </table>
@@ -313,7 +313,7 @@ $(function () {
             columns: [
                 { data: 'DT_RowIndex', orderable: false, searchable: false, width: '40px',
                   render: function (data) {
-                      if (data == 1) return '<span style="background:#f39c12; color:#fff; border-radius:50%; width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; font-weight:700; font-size:11px;"><i class="fas fa-crown"></i></span>';
+                      if (data == 1) return '<span style="background:#0d6efd; color:#fff; border-radius:50%; width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; font-weight:700; font-size:11px;"><i class="fas fa-crown"></i></span>';
                       if (data == 2) return '<span style="background:#95a5a6; color:#fff; border-radius:50%; width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; font-weight:700; font-size:11px;">' + data + '</span>';
                       if (data == 3) return '<span style="background:#cd7f32; color:#fff; border-radius:50%; width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; font-weight:700; font-size:11px;">' + data + '</span>';
                       return '<span style="font-weight:600; color:#aaa;">' + data + '</span>';
@@ -321,7 +321,7 @@ $(function () {
                 },
                 { data: 'bid_amount',
                   render: function (data, type, row, meta) {
-                      var style = meta.row === 0 ? 'font-weight:700; color:#e67e22; font-size:14px;' : 'font-weight:600; color:#1a1a2e;';
+                      var style = meta.row === 0 ? 'font-weight:700; color:#0d6efd; font-size:14px;' : 'font-weight:600; color:#1a1a2e;';
                       return '<span style="' + style + '">' + data + '</span>';
                   }
                 },
@@ -371,7 +371,7 @@ $(function () {
             columns: [
                 { data: 'DT_RowIndex', orderable: false, searchable: false, width: '40px',
                   render: function (data) {
-                      return '<span style="font-weight:600; color:#2980b9;">' + data + '</span>';
+                      return '<span style="font-weight:600; color:#0d6efd;">' + data + '</span>';
                   }
                 },
                 { data: 'bid_amount',
@@ -600,7 +600,7 @@ $(function () {
                 html: 'You are placing a bid of <strong>' + formatINR(bidAmount) + '</strong>.<br>This action cannot be undone.',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#11998e',
+                confirmButtonColor: '#0d6efd',
                 cancelButtonColor: '#6c757d',
                 confirmButtonText: 'Yes, Place Bid!',
                 cancelButtonText: 'Cancel'
@@ -637,13 +637,13 @@ $(function () {
             Swal.fire({
                 title: '&#9888; Challenge Amount Below Current Resolution Amount (Base Value)',
                 html: '<div style="text-align:left; font-size:13px; line-height:1.7;">' +
-                      '<p>Your bid of <strong style="color:#e74c3c;">' + formatINR(bidAmount) + '</strong> is <strong>below the recommended minimum</strong> of <strong style="color:#11998e;">' + formatINR(baseValue + increment) + '</strong>.</p>' +
+                      '<p>Your bid of <strong style="color:#e74c3c;">' + formatINR(bidAmount) + '</strong> is <strong>below the recommended minimum</strong> of <strong style="color:#0d6efd;">' + formatINR(baseValue + increment) + '</strong>.</p>' +
                       '<p style="margin-top:8px;">once submitted you bid is irreversible. However, you can submit fresh bid, as long as the challenge process is live.  </p>' +
                       '<p style="margin-top:8px; color:#888;">Do you still wish to proceed with this bid?</p>' +
                       '</div>',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#e67e22',
+                confirmButtonColor: '#0d6efd',
                 cancelButtonColor: '#6c757d',
                 confirmButtonText: '<i class="fas fa-exclamation-triangle mr-1"></i> Yes, Submit Anyway',
                 cancelButtonText: 'No, Let Me Revise',

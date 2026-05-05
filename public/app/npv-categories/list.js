@@ -8,7 +8,9 @@ $(function () {
     $('#npv-categories-table').DataTable({
         processing: false,
         serverSide: true,
-        responsive: true,
+        responsive: false,
+        scrollX: true,
+        autoWidth: false,
         ajax: npvCategoriesConfig.datatableUrl,
         preDrawCallback: function () { $('#npv-categories-loader').show(); },
         drawCallback:    function () { $('#npv-categories-loader').hide(); },
@@ -17,6 +19,7 @@ $(function () {
             { data: 'name' },
             { data: 'description',  orderable: false },
             { data: 'status',       orderable: false },
+            { data: 'created_date', orderable: false },
             { data: 'action',       orderable: false, searchable: false, className: 'text-center' },
         ],
         pageLength: 10,

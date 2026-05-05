@@ -10,7 +10,7 @@
 }
 
 .form-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #0d6efd 0%, #38b6ff 100%);
     border-radius: 16px 16px 0 0;
     padding: 20px 24px;
 }
@@ -46,7 +46,7 @@
 }
 
 .form-control:focus {
-    border-color: #667eea;
+    border-color: #0d6efd;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
 }
 
@@ -90,7 +90,7 @@ label {
 }
 
 .password-toggle:hover {
-    color: #667eea;
+    color: #0d6efd;
 }
 
 .btn-submit {
@@ -98,7 +98,7 @@ label {
     padding: 10px 28px;
     font-weight: 600;
     font-size: 14px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #0d6efd, #38b6ff);
     border: none;
     transition: all 0.2s;
 }
@@ -123,7 +123,7 @@ label {
 }
 
 .breadcrumb-nav a {
-    color: #667eea;
+    color: #0d6efd;
     text-decoration: none;
 }
 

@@ -47,10 +47,10 @@ $(function () {
             <div class="row">
                 <div class="col-md-6 col-12">
                     <div class="form-group mb-2">
-                        <label class="mb-1">Period (days)</label>
-                        <input type="number" min="1" name="npvp[${index}][period]"
+                        <label class="mb-1">Period</label>
+                        <input type="text" name="npvp[${index}][period]"
                             class="form-control form-control-sm npvp-period"
-                            placeholder="e.g. 30">
+                            placeholder="e.g. 30 days / T+45 / End of quarter">
                         <div class="npvp-error text-danger" style="font-size:12px; display:none;"></div>
                     </div>
                 </div>
@@ -88,7 +88,6 @@ $(function () {
     function validateNpvp() {
         var rows = $('#npvp-wrapper .npvp-row');
         var valid = true;
-        var prevPeriod = 0;
 
         rows.find('.npvp-period').removeClass('is-invalid');
         rows.find('.npvp-error').hide().text('');
@@ -98,15 +97,11 @@ $(function () {
         rows.each(function (i) {
             var $periodInput = $(this).find('.npvp-period');
             var $periodErr   = $(this).find('.npvp-error');
-            var period       = parseInt($periodInput.val());
+            var period       = ($periodInput.val() || '').trim();
 
-            if (isNaN(period) || period <= 0) {
+            if (!period) {
                 $periodInput.addClass('is-invalid');
-                $periodErr.text('Period must be greater than 0.').show();
-                valid = false;
-            } else if (i > 0 && period <= prevPeriod) {
-                $periodInput.addClass('is-invalid');
-                $periodErr.text('Period must be greater than previous row\'s period (' + prevPeriod + ').').show();
+                $periodErr.text('Period is required.').show();
                 valid = false;
             }
 
@@ -120,7 +115,6 @@ $(function () {
                 valid = false;
             }
 
-            prevPeriod = isNaN(period) ? prevPeriod : period;
         });
 
         return valid;
@@ -137,6 +131,12 @@ $(function () {
     function validateEndingPeriod() {
         var $ep    = $('[name="ending_period"]');
         var $epErr = $('#ending-period-error');
+
+        // Field is optional/removed in current form.
+        if ($ep.length === 0) {
+            return true;
+        }
+
         var ep     = parseInt($ep.val());
 
         var maxPeriod = 0;
@@ -207,13 +207,16 @@ $(function () {
 
     // validate on form submit
     $('form').on('submit', function (e) {
-        var valid = validateNpvp() & validateEndingPeriod() & validateInitialNpvValue() & validateIncrementAmountType();
+        var valid = validateNpvp() && validateEndingPeriod() && validateInitialNpvValue() && validateIncrementAmountType();
 
         if (!valid) {
             e.preventDefault();
-            $('html, body').animate({
-                scrollTop: $('.is-invalid').first().offset().top - 100
-            }, 400);
+            var $firstInvalid = $('.is-invalid').first();
+            if ($firstInvalid.length > 0 && $firstInvalid.offset()) {
+                $('html, body').animate({
+                    scrollTop: $firstInvalid.offset().top - 100
+                }, 400);
+            }
         }
     });
 

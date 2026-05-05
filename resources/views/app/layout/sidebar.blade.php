@@ -67,6 +67,15 @@
         </li>
         @endcan
 
+        @can('view logs')
+        <li class="nav-item">
+            <a href="{{ route('logs.index') }}" class="nav-link {{ Request::routeIs('logs.*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-history"></i>
+                <p>Logs</p>
+            </a>
+        </li>
+        @endcan
+
         {{-- Account --}}
         <li class="nav-header text-uppercase" style="font-size:10px; letter-spacing:1px; opacity:.6;">Account</li>
         <li class="nav-item">

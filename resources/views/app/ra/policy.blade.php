@@ -9,7 +9,7 @@
         margin: 0 auto;
     }
     .policy-header {
-        background: linear-gradient(135deg, #1a5276, #2980b9);
+        background: linear-gradient(135deg, #0d6efd, #38b6ff);
         border-radius: 16px;
         padding: 24px 28px;
         margin-bottom: 24px;
@@ -30,7 +30,7 @@
         padding: 12px 20px;
         font-size: 13px;
         font-weight: 700;
-        color: #2980b9;
+        color: #0d6efd;
         text-transform: uppercase;
         letter-spacing: 1px;
     }
@@ -66,7 +66,7 @@
         cursor: pointer;
     }
     .btn-sign {
-        background: linear-gradient(135deg, #1a5276, #2980b9);
+        background: linear-gradient(135deg, #0d6efd, #38b6ff);
         color: #fff;
         border: none;
         border-radius: 10px;
@@ -81,7 +81,7 @@
         gap: 8px;
     }
     .btn-sign:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-sign:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(41,128,185,0.4); }
+    .btn-sign:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(13,110,253,0.4); }
 </style>
 @endsection
 

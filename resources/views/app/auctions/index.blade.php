@@ -3,7 +3,6 @@
 
 @section('header-script')
 <link rel="stylesheet" href="{{ asset('plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
-<link rel="stylesheet" href="{{ asset('plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
 <link rel="stylesheet" href="{{ asset('app/auctions/list.css') }}">
 @endsection
 
@@ -36,11 +35,11 @@
                     <tr>
                         <th width="50">#</th>
                         <th>Corporate Debtor</th>
-                        <th class="none">Date of Challenge Process</th>
-                        <th class="none">Base Price</th>
-                        <th class="none">NPV</th>
+                        <th>Date of Challenge Process</th>
+                        <th>Base Price</th>
+                        <th>NPV</th>
                         <th>Increment Type</th>
-                        <th class="none">Created Date</th>
+                        <th>Created Date</th>
                         <th class="text-center">Action</th>
                     </tr>
                 </thead>
@@ -53,8 +52,6 @@
 @section('footer-script')
 <script src="{{ asset('plugins/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-<script src="{{ asset('plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
-<script src="{{ asset('plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
 <script>
     var auctionsConfig = {
         datatableUrl: '{{ route('auctions.datatable') }}',

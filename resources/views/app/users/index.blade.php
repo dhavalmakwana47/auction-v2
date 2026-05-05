@@ -3,7 +3,6 @@
 
 @section('header-script')
 <link rel="stylesheet" href="{{ asset('plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
-<link rel="stylesheet" href="{{ asset('plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
 <link rel="stylesheet" href="{{ asset('app/users/list.css') }}">
 @endsection
 
@@ -36,11 +35,11 @@
                     <tr>
                         <th width="50">#</th>
                         <th>Name</th>
-                        <th class="none">Email ID</th>
+                        <th>Email ID</th>
                         <th>Role</th>
                         <th>Status</th>
-                        <th class="none">Created Date</th>
-                        <th class="none text-center">Action</th>
+                        <th>Created Date</th>
+                        <th class="text-center">Action</th>
                     </tr>
                 </thead>
             </table>
@@ -53,8 +52,6 @@
 @section('footer-script')
 <script src="{{ asset('plugins/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-<script src="{{ asset('plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
-<script src="{{ asset('plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
 <script>
     var usersConfig = {
         datatableUrl: '{{ route('users.datatable') }}',

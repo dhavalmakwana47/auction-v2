@@ -8,7 +8,9 @@ $(function () {
     $('#auctions-table').DataTable({
         processing: false,
         serverSide: true,
-        responsive: true,
+        responsive: false,
+        scrollX: true,
+        autoWidth: false,
         ajax: auctionsConfig.datatableUrl,
         preDrawCallback: function () { $('#auctions-loader').show(); },
         drawCallback:    function () { $('#auctions-loader').hide(); },
@@ -19,6 +21,7 @@ $(function () {
             { data: 'base_price' },
             { data: 'initial_npv_value', orderable: false },
             { data: 'increment_type',  orderable: false },
+            { data: 'created_date', orderable: false },
             { data: 'action',          orderable: false, searchable: false, className: 'text-center' },
         ],
         pageLength: 10,

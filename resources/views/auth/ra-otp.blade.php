@@ -5,25 +5,25 @@
 
 @section('content')
 <style>
-    .login-page { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .login-page { background: linear-gradient(135deg, #0d6efd 0%, #38b6ff 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
     .login-box { width: 380px; }
     .ra-login-card { border: none; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); overflow: hidden; }
-    .ra-login-header { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); padding: 32px 24px 24px; text-align: center; }
+    .ra-login-header { background: linear-gradient(135deg, #0d6efd 0%, #38b6ff 100%); padding: 32px 24px 24px; text-align: center; }
     .ra-login-header .icon-wrap { width: 64px; height: 64px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
     .ra-login-header h4 { color: #fff; font-weight: 700; font-size: 20px; margin: 0 0 4px; }
     .ra-login-header p { color: rgba(255,255,255,0.8); font-size: 13px; margin: 0; }
     .ra-login-body { padding: 28px 28px 20px; }
     .ra-login-body label { font-weight: 600; font-size: 13px; color: #555; margin-bottom: 6px; }
     .otp-input { border-radius: 10px; border: 1.5px solid #e0e0e0; height: 56px; font-size: 24px; font-weight: 700; letter-spacing: 12px; text-align: center; width: 100%; transition: all 0.2s; padding: 0 16px; }
-    .otp-input:focus { border-color: #11998e; box-shadow: 0 0 0 3px rgba(17,153,142,0.15); outline: none; }
+    .otp-input:focus { border-color: #0d6efd; box-shadow: 0 0 0 3px rgba(13,110,253,0.15); outline: none; }
     .otp-input.is-invalid { border-color: #e74c3c; }
-    .btn-ra { background: linear-gradient(135deg, #11998e, #38ef7d); border: none; border-radius: 10px; color: #fff; font-weight: 600; font-size: 14px; height: 44px; width: 100%; transition: all 0.2s; }
-    .btn-ra:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(17,153,142,0.4); color: #fff; }
+    .btn-ra { background: linear-gradient(135deg, #0d6efd, #38b6ff); border: none; border-radius: 10px; color: #fff; font-weight: 600; font-size: 14px; height: 44px; width: 100%; transition: all 0.2s; }
+    .btn-ra:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(13,110,253,0.4); color: #fff; }
     .ra-footer-link { text-align: center; font-size: 12px; color: #aaa; margin-top: 16px; }
-    .ra-footer-link a { color: #11998e; font-weight: 600; text-decoration: none; }
+    .ra-footer-link a { color: #0d6efd; font-weight: 600; text-decoration: none; }
     .ra-footer-link a:hover { text-decoration: underline; }
     .ra-step-badge { display: inline-block; background: rgba(255,255,255,0.25); color: #fff; font-size: 11px; font-weight: 600; border-radius: 20px; padding: 3px 12px; margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase; }
-    .otp-hint { background: #f0fff8; border: 1px solid #c3f0e0; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #11998e; margin-bottom: 20px; }
+    .otp-hint { background: #edf5ff; border: 1px solid #dbeafe; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #0d6efd; margin-bottom: 20px; }
     .timer { font-size: 12px; color: #aaa; text-align: center; margin-top: 8px; }
     .timer span { font-weight: 700; color: #e74c3c; }
 </style>

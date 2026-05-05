@@ -26,6 +26,8 @@ class AdminSeeder extends Seeder
             'view users', 'create users', 'edit users', 'delete users',
             // Roles
             'view roles', 'create roles', 'edit roles', 'delete roles',
+            // Logs
+            'view logs',
             // Auctions
             'view auctions', 'create auctions', 'edit auctions', 'delete auctions',
             // NPV Categories

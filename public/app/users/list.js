@@ -8,7 +8,9 @@ $(function () {
     $('#users-table').DataTable({
         processing: false,
         serverSide: true,
-        responsive: true,
+        responsive: false,
+        scrollX: true,
+        autoWidth: false,
         ajax: usersConfig.datatableUrl,
         preDrawCallback: function () {
             $('#users-loader').show();
@@ -22,6 +24,7 @@ $(function () {
             { data: 'email' },
             { data: 'role',   orderable: false },
             { data: 'status', orderable: false },
+            { data: 'created_date', orderable: false },
             { data: 'action', orderable: false, searchable: false, className: 'text-center' },
         ],
         pageLength: 10,

@@ -8,7 +8,9 @@ $(function () {
     $('#roles-table').DataTable({
         processing: false,
         serverSide: true,
-        responsive: true,
+        responsive: false,
+        scrollX: true,
+        autoWidth: false,
         ajax: rolesConfig.datatableUrl,
         preDrawCallback: function () {
             $('#roles-loader').show();
@@ -20,6 +22,7 @@ $(function () {
             { data: 'DT_RowIndex', orderable: false, searchable: false, width: '50px' },
             { data: 'name' },
             { data: 'permissions', orderable: false },
+            { data: 'created_date', orderable: false },
             { data: 'action',      orderable: false, searchable: false, className: 'text-center' },
         ],
         pageLength: 10,

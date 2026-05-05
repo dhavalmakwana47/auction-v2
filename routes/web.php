@@ -5,6 +5,7 @@ use App\Http\Controllers\AuctionController;
 use App\Http\Controllers\NpvCategoryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\LogController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -102,6 +103,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('roles-datatable', [RoleController::class, 'datatable'])
         ->middleware('permission:view roles')
         ->name('roles.datatable');
+
+    Route::get('logs', [LogController::class, 'index'])
+        ->middleware('permission:view logs')
+        ->name('logs.index');
+    Route::get('logs-datatable', [LogController::class, 'datatable'])
+        ->middleware('permission:view logs')
+        ->name('logs.datatable');
+    Route::get('logs-export', [LogController::class, 'export'])
+        ->middleware('permission:view logs')
+        ->name('logs.export');
 });
 
 // ── RA OTP Login ──
