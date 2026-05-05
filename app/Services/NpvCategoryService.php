@@ -15,6 +15,7 @@ class NpvCategoryService
                 ? '<span class="badge-active"><i class="fas fa-check-circle mr-1"></i>Active</span>'
                 : '<span class="badge-inactive"><i class="fas fa-times-circle mr-1"></i>Inactive</span>'
             )
+            ->addColumn('created_date', fn($c) => $c->created_at ? $c->created_at->format('d M Y') : '—')
             ->addColumn('action', fn($c) =>
                 '<a href="' . route('npv-categories.edit', $c) . '" class="btn btn-warning btn-action mr-1" title="Edit"><i class="fas fa-edit" style="font-size:13px;"></i></a>'
                 . '<button class="btn btn-danger btn-action btn-delete" data-url="' . route('npv-categories.destroy', $c) . '" title="Delete"><i class="fas fa-trash" style="font-size:13px;"></i></button>'

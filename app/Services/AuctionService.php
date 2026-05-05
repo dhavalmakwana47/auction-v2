@@ -20,6 +20,7 @@ class AuctionService
                 '<span class="badge-type-' . $a->increment_type . '">' . ucfirst($a->increment_type) . '</span>'
             )
             ->addColumn('initial_npv_value', fn($a) => number_format($a->initial_npv_value, 2))
+            ->addColumn('created_date', fn($a) => $a->created_at ? $a->created_at->format('d M Y') : '—')
             ->addColumn('action', function ($a) {
                 $buttons = '';
                 if ($a->status === 'pending') {
@@ -54,7 +55,7 @@ class AuctionService
 
     public function getParticipants()
     {
-        return User::whereHas('roles', fn($q) => $q->where('name', 'ra'))
+        return User::whereHas('roles', fn($q) => $q->whereRaw('LOWER(name) = ?', ['ra']))
             ->get(['id', 'name', 'email']);
     }
 
@@ -72,12 +73,17 @@ class AuctionService
             'increment_amount'      => $data['increment_amount'],
             'increment_type'        => $data['increment_type'],
             'process_decleration'   => $data['process_decleration'] ?? null,
-            'ending_period'         => $data['ending_period'],
             'initial_npv_value'     => $data['initial_npv_value'],
             'created_by'            => Auth::id(),
         ]);
 
         if (!empty($data['participants'])) {
+            foreach ($data['participants'] as $userId) {
+                $auction->participants()->create(['user_id' => $userId]);
+            }
+        }
+
+        if (!empty($data['npv_categories'])) {
             $auction->npvCategories()->sync($data['npv_categories']);
         }
 
@@ -105,7 +111,6 @@ class AuctionService
             'increment_amount'      => $data['increment_amount'],
             'increment_type'        => $data['increment_type'],
             'process_decleration'   => $data['process_decleration'] ?? null,
-            'ending_period'         => $data['ending_period'],
             'initial_npv_value'     => $data['initial_npv_value'],
         ]);
 

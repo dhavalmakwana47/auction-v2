@@ -68,12 +68,13 @@
                 </div>
             </div>
 
+            <div id="password-section">
             <p class="form-section-title mt-3"><i class="fas fa-lock mr-1"></i> Password</p>
             <div class="row">
                 <div class="col-md-6 col-12">
                     <div class="form-group">
                         <label>
-                            Password @if(!isset($user))<span class="text-danger">*</span>@endif
+                            Password @if(!isset($user))<span class="text-danger" id="pwd-required">*</span>@endif
                             @if(isset($user))<small class="text-muted font-weight-normal">(leave blank to keep current)</small>@endif
                         </label>
                         <div class="input-icon-wrap" style="position:relative;">
@@ -91,7 +92,7 @@
                 </div>
                 <div class="col-md-6 col-12">
                     <div class="form-group">
-                        <label>Confirm Password @if(!isset($user))<span class="text-danger">*</span>@endif</label>
+                        <label>Confirm Password @if(!isset($user))<span class="text-danger" id="pwd-confirm-required">*</span>@endif</label>
                         <div class="input-icon-wrap" style="position:relative;">
                             <i class="fas fa-lock input-icon"></i>
                             <input type="password" name="password_confirmation" id="password_confirmation"
@@ -104,6 +105,7 @@
                         </div>
                     </div>
                 </div>
+            </div>
             </div>
 
             <p class="form-section-title mt-3"><i class="fas fa-sliders-h mr-1"></i> Role & Status</p>
@@ -165,4 +167,27 @@
 
 @section('footer-script')
 <script src="{{ asset('app/users/form.js') }}"></script>
+<script>
+$(function () {
+    var isEdit = {{ isset($user) ? 'true' : 'false' }};
+    var currentRole = '{{ old('role', isset($user) ? $user->getRoleNames()->first() : '') }}';
+
+    function togglePasswordSection(role) {
+        if (!isEdit && role.toLowerCase() === 'ra') {
+            $('#password-section').hide();
+            $('#password, #password_confirmation').val('');
+        } else {
+            $('#password-section').show();
+        }
+    }
+
+    // on role change
+    $('select[name="role"]').on('change', function () {
+        togglePasswordSection($(this).val());
+    });
+
+    // on page load
+    togglePasswordSection(currentRole);
+});
+</script>
 @endsection

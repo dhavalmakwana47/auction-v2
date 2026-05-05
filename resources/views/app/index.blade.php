@@ -28,7 +28,7 @@
 <div class="ra-portal-header">
     <div>
         <h4><i class="fas fa-tachometer-alt mr-2"></i> Dashboard</h4>
-        <small>Overview of all auctions</small>
+        <small>Overview of all Challenge Mechanism</small>
     </div>
     <div class="status-filter-wrap mt-2 mt-sm-0">
         <button class="btn-status-filter" data-status="">All</button>
@@ -40,7 +40,7 @@
 
 @if($auctions->isEmpty())
     <div class="alert alert-warning" style="border-radius:12px;">
-        <i class="fas fa-exclamation-triangle mr-2"></i> No auctions found.
+        <i class="fas fa-exclamation-triangle mr-2"></i> No Challenge Mechanism found.
     </div>
 @else
     <div class="row" id="auctions-grid">
@@ -89,7 +89,7 @@
     </div>
 
     <div id="no-results" class="alert alert-info" style="border-radius:12px; display:none;">
-        <i class="fas fa-info-circle mr-2"></i> No auctions found for the selected status.
+        <i class="fas fa-info-circle mr-2"></i> No Challenge Mechanism found for the selected status.
     </div>
 @endif
 

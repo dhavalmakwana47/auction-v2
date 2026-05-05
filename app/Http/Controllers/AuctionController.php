@@ -195,47 +195,19 @@ class AuctionController extends Controller
             'increment_amount'        => 'required|string',
             'increment_amount_type'    => 'required|in:recommend,mandatory',
             'increment_type'           => 'required|in:fixed,multiple',
-            'ending_period'           => 'required|integer|min:1',
             'initial_npv_value'       => 'required|numeric|min:0.01',
             'participants'            => 'nullable|array',
             'participants.*'          => 'exists:users,id',
             'npv_categories'          => 'required|array|min:1',
             'npv_categories.*'        => 'exists:npv_categories,id',
             'npvp'                    => 'nullable|array',
-            'npvp.*.period'           => 'required_with:npvp|integer|min:1',
+            'npvp.*.period'           => 'required_with:npvp|string|max:255',
             'npvp.*.percentage_value' => 'required_with:npvp|numeric|min:0|regex:/^\d+(\.\d{1,7})?$/',
         ]);
     }
 
     private function validateNpvpPeriods(Request $request): void
     {
-        $rows = $request->input('npvp', []);
-        $errors = [];
-        $prevPeriod = 0;
-        $maxPeriod  = 0;
-
-        foreach ($rows as $i => $row) {
-            $period = (int) ($row['period'] ?? 0);
-
-            if ($i > 0 && $period <= $prevPeriod) {
-                $errors["npvp.{$i}.period"] = [
-                    "Row " . ($i + 1) . ": Period ({$period}) must be greater than previous row's period ({$prevPeriod})."
-                ];
-            }
-
-            if ($period > $maxPeriod) $maxPeriod = $period;
-            $prevPeriod = $period;
-        }
-
-        $endingPeriod = (int) $request->input('ending_period', 0);
-        if (!empty($rows) && $endingPeriod <= $maxPeriod) {
-            $errors['ending_period'] = [
-                "Ending period must be greater than the maximum NPVP period ({$maxPeriod})."
-            ];
-        }
-
-        if (!empty($errors)) {
-            throw ValidationException::withMessages($errors);
-        }
+        // Period is now a free-text field, no ordering validation needed
     }
 }

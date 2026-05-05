@@ -9,14 +9,14 @@
 
 <div class="ra-portal-header">
     <div>
-        <h4><i class="fas fa-list mr-2"></i> My Assigned Auctions</h4>
-        <small>Select an auction to enter the Challenge Mechanism Portal</small>
+        <h4><i class="fas fa-list mr-2"></i> Assigned Challenge Processes</h4>
+        
     </div>
 </div>
 
 @if($auctions->isEmpty())
     <div class="alert alert-warning" style="border-radius:12px;">
-        <i class="fas fa-exclamation-triangle mr-2"></i> No in-progress auctions have been assigned to you.
+        <i class="fas fa-exclamation-triangle mr-2"></i> No in-progress Challenge Processes have been assigned to you.
     </div>
 @else
     <div class="row">

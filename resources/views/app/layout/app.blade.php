@@ -33,6 +33,9 @@
         .error{
             color: red;
         }
+        .content-wrapper {
+    background-color: #f4f6f9 !important;   /* AdminLTE light grey */
+}
     </style>
 </head>
 
@@ -48,9 +51,9 @@
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
             <a href="" class="brand-link">
-                <img src="{{ asset('homepage/assets/img/logo.png') }}" alt="AdminLTE Logo"
-                    class="brand-image">
-                <span class="brand-text font-weight-light">India Auction</span>
+                <!--<img src="{{ asset('homepage/assets/img/logo.png') }}" alt="AdminLTE Logo"
+                    class="brand-image"> -->
+                <span class="brand-text font-weight-light">CHALLENGE MECHANISM</span>
             </a>
 
             <!-- Sidebar -->
@@ -99,9 +102,9 @@
         </div>
         <!-- /.content-wrapper -->
         <footer class="main-footer">
-           <strong>© 2024 India E-Voting. </strong>
+           <strong>© 2024 Apexrise Consultant and E-Service. </strong>
             All rights reserved.
-            <div class="float-right d-none d-sm-inline-block">
+           <!--<div class="float-right d-none d-sm-inline-block">
                 <ul class="list-inline footer-links"> 
                         <li class="list-inline-item"> 
                             <a href="" class=""> 
@@ -119,7 +122,7 @@
                             </a> 
                         </li> 
                     </ul> 
-            </div>
+            </div>-->
         </footer>
 
     </div>

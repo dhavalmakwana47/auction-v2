@@ -10,9 +10,9 @@
 <div class="breadcrumb-nav mb-3">
     <a href="{{ route('dashboard') }}"><i class="fas fa-home mr-1"></i>Dashboard</a>
     <span class="mx-2">/</span>
-    <a href="{{ route('npv-categories.index') }}">NPV Categories</a>
+    <a href="{{ route('npv-categories.index') }}">Description of Creditors</a>
     <span class="mx-2">/</span>
-    <span>{{ isset($category) ? 'Edit Category' : 'Add Category' }}</span>
+    <span>{{ isset($category) ? 'Edit Category' : 'Add Description of Creditors' }}</span>
 </div>
 
 <div class="card form-card">
@@ -23,8 +23,8 @@
                 <i class="fas fa-{{ isset($category) ? 'edit' : 'plus' }} text-white fa-lg"></i>
             </div>
             <div>
-                <h4 class="text-white font-weight-bold mb-0">{{ isset($category) ? 'Edit Category' : 'Add New Category' }}</h4>
-                <small class="text-white-50">{{ isset($category) ? 'Update category details' : 'Fill in the details to create a new category' }}</small>
+                <h4 class="text-white font-weight-bold mb-0">{{ isset($category) ? 'Edit Category' : 'Add Description of Creditors' }}</h4>
+                <small class="text-white-50">{{ isset($category) ? 'Update Description of Creditors' : '' }}</small>
             </div>
         </div>
         <a href="{{ route('npv-categories.index') }}" class="btn btn-light btn-sm mt-2 mt-sm-0" style="border-radius:20px;">
@@ -38,7 +38,7 @@
 
         <div class="card-body px-4 py-4">
 
-            <p class="form-section-title"><i class="fas fa-info-circle mr-1"></i> Category Details</p>
+            <p class="form-section-title"><i class="fas fa-info-circle mr-1"></i> Description of Creditors Details</p>
             <div class="row">
                 <div class="col-md-6 col-12">
                     <div class="form-group">
@@ -48,7 +48,7 @@
                             <input type="text" name="name"
                                 class="form-control @error('name') is-invalid @enderror"
                                 value="{{ old('name', $category->name ?? '') }}"
-                                placeholder="Enter category name">
+                                placeholder="Enter Description of Creditors name">
                         </div>
                         @error('name')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>
@@ -79,7 +79,7 @@
                         <label>Description</label>
                         <textarea name="description" rows="4"
                             class="form-control @error('description') is-invalid @enderror"
-                            placeholder="Enter category description (optional)">{{ old('description', $category->description ?? '') }}</textarea>
+                            placeholder="Enter Description of Creditors description (optional)">{{ old('description', $category->description ?? '') }}</textarea>
                         @error('description')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>
                 </div>
@@ -89,7 +89,7 @@
 
         <div class="card-footer bg-white border-top px-4 py-3 d-flex flex-wrap align-items-center" style="border-radius:0 0 16px 16px;">
             <button type="submit" class="btn btn-submit">
-                <i class="fas fa-{{ isset($category) ? 'sync-alt' : 'save' }} mr-2"></i>{{ isset($category) ? 'Update Category' : 'Create Category' }}
+                <i class="fas fa-{{ isset($category) ? 'sync-alt' : 'save' }} mr-2"></i>{{ isset($category) ? 'Update Description of Creditors' : 'Create Description of Creditors' }}
             </button>
             <a href="{{ route('npv-categories.index') }}" class="btn btn-light btn-cancel ml-3">
                 <i class="fas fa-times mr-1"></i> Cancel

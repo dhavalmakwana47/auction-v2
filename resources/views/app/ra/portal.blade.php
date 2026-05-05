@@ -12,8 +12,12 @@
 
 <div class="ra-portal-header">
     <div>
-        <h4><i class="fas fa-gavel mr-2"></i> Challenge Mechanism Portal</h4>
+        <h4><i class="fas fa-gavel mr-2"></i> Challenge Mechanism</h4>
         <small>{{ $auction->corporate_debtor_name }}</small>
+        <div class="meta">
+            <small><i class="fas fa-calendar-alt"></i> {{ \Carbon\Carbon::parse($auction->meeting_date)->format('d M Y') }}</small> &nbsp;
+            <small><i class="fas fa-desktop"></i> Electronic Platform</small>
+        </div>
     </div>
     <div class="d-flex align-items-center" style="gap:10px;">
         <button class="btn btn-sm font-weight-600" id="btn-top-bids"
@@ -32,17 +36,17 @@
 
 {{-- Stat Cards --}}
 <div class="row mb-3">
-    <div class="col-md-4 col-12 mb-3 mb-md-0">
+    <div class="col-md-6 col-12 mb-3 mb-md-0">
         <div class="ra-stat-card d-flex align-items-center justify-content-between">
             <div>
-                <div class="stat-label">Current Base Value</div>
+                <div class="stat-label">Resolution Plan Amount (Current Base Value)</div>
                 <div class="stat-value">&#8377; {{ number_format($highestBid) }}</div>
-                <div class="stat-note">Dynamic &mdash; updates on each bid</div>
+               
             </div>
             <div class="stat-icon"><i class="fas fa-rupee-sign text-white fa-lg"></i></div>
         </div>
     </div>
-    <div class="col-md-4 col-12 mb-3 mb-md-0">
+    {{--<div class="col-md-6 col-12 mb-3 mb-md-0">
         <div class="ra-stat-card d-flex align-items-center justify-content-between">
             <div>
                 <div class="stat-label">Minimum Next Bid</div>
@@ -51,17 +55,7 @@
             </div>
             <div class="stat-icon"><i class="fas fa-arrow-up text-white fa-lg"></i></div>
         </div>
-    </div>
-    <div class="col-md-4 col-12">
-        <div class="ra-stat-card d-flex align-items-center justify-content-between">
-            <div>
-                <div class="stat-label">Increment Amount</div>
-                <div class="stat-value">&#8377; {{ number_format($auction->increment_amount) }}</div>
-                <div class="stat-note">{{ ucfirst($auction->increment_amount_type) }} &mdash; {{ ucfirst($auction->increment_type) }}</div>
-            </div>
-            <div class="stat-icon"><i class="fas fa-plus text-white fa-lg"></i></div>
-        </div>
-    </div>
+    </div> --}}
 </div>
 
 {{-- Resolution Amount --}}
@@ -106,7 +100,7 @@
 {{-- NPV Distribution Table --}}
 <div class="ra-table-card card" id="npv-table-section" style="display:none;">
     <div class="card-header">
-        <i class="fas fa-table mr-1"></i> NPV Distribution by Category &amp; Period
+        <i class="fas fa-table mr-1"></i> Details of Proposed Resolution Amount
     </div>
     <div class="table-responsive">
         <table class="table table-bordered mb-0">
@@ -116,7 +110,6 @@
                     @foreach($auction->npvpConfigurations as $npvp)
                         <th>{{ $npvp->period }} Days</th>
                     @endforeach
-                    <th>NPV Total</th>
                     <th>Total</th>
                 </tr>
             </thead>
@@ -135,7 +128,6 @@
                             style="min-width:110px;">
                     </td>
                     @endforeach
-                    <td class="font-weight-700 row-npv-total" style="white-space:nowrap;">0.00</td>
                     <td class="font-weight-700 row-total" style="white-space:nowrap;">0.00</td>
                 </tr>
                 @empty
@@ -147,20 +139,18 @@
                 @endforelse
             </tbody>
             <tfoot>
-                <tr class="total-row">
+                <tr class="total-row" style="background:#e0f7f5;">
                     <td class="font-weight-700">Total Amount</td>
                     @foreach($auction->npvpConfigurations as $npvp)
                         <td class="font-weight-700 col-total" data-period="{{ $npvp->period }}">0.00</td>
                     @endforeach
-                    <td class="font-weight-700" id="grand-npv-total">0.00</td>
                     <td class="font-weight-700" id="grand-total">0.00</td>
                 </tr>
-                <tr class="total-row" style="background:#e0f7f5;">
+                <tr class="total-row" >
                     <td class="font-weight-700">NPV Total</td>
                     @foreach($auction->npvpConfigurations as $npvp)
                         <td class="font-weight-700 col-npv-total" data-period="{{ $npvp->period }}" data-pct="{{ $npvp->percentage_value }}">0.00</td>
                     @endforeach
-                    <td class="font-weight-700" id="grand-npv-total-footer">0.00</td>
                     <td>&mdash;</td>
                 </tr>
             </tfoot>
@@ -482,29 +472,25 @@ $(function () {
         $('#npv-table-section').hide();
         $('#btn-place-bid').prop('disabled', true);
         $('.npv-amount-input').val('').prop('disabled', true);
-        $('.col-total, .col-npv-total').text('0.00');
-        $('#grand-total, #grand-npv-total, #grand-npv-total-footer').text('0.00');
-        $('.row-total, .row-npv-total').text('0.00');
+        $('.col-total').text('0.00');
+        $('#grand-total').text('0.00');
+        $('.row-total').text('0.00');
         $('#distribution-error').hide();
     });
 
     // ── Live totals ──
     function recalculate() {
-        var grandTotal = 0, grandNpvTotal = 0;
+        var grandTotal = 0;
 
         $('.col-total').each(function () { $(this).text('0.00'); });
         $('.col-npv-total').each(function () { $(this).text('0.00'); });
 
         $('tbody tr[data-category-id]').each(function () {
-            var rowTotal = 0, rowNpvTotal = 0;
+            var rowTotal = 0;
             $(this).find('.npv-amount-input').each(function () {
-                var val = parseFloat($(this).val()) || 0;
-                var pct = parseFloat($('.col-npv-total[data-period="' + $(this).data('period') + '"]').data('pct')) || 0;
-                rowTotal    += val;
-                rowNpvTotal += val * pct;
+                rowTotal += parseFloat($(this).val()) || 0;
             });
             $(this).find('.row-total').text(rowTotal.toFixed(2));
-            $(this).find('.row-npv-total').text(rowNpvTotal.toFixed(2));
         });
 
         $('.npv-amount-input').each(function () {
@@ -517,12 +503,9 @@ $(function () {
             $nt.text((parseFloat($nt.text()) + val * pct).toFixed(2));
         });
 
-        $('.col-total').each(function () { grandTotal    += parseFloat($(this).text()) || 0; });
-        $('.col-npv-total').each(function () { grandNpvTotal += parseFloat($(this).text()) || 0; });
+        $('.col-total').each(function () { grandTotal += parseFloat($(this).text()) || 0; });
 
         $('#grand-total').text(grandTotal.toFixed(2));
-        $('#grand-npv-total').text(grandNpvTotal.toFixed(2));
-        $('#grand-npv-total-footer').text(grandNpvTotal.toFixed(2));
 
         if (bidAmount > 0) {
             var remaining = bidAmount - grandTotal;
@@ -573,9 +556,9 @@ $(function () {
             $('#npv-table-section').hide();
             $('#btn-place-bid').prop('disabled', true);
             $('.npv-amount-input').val('').prop('disabled', true);
-            $('.col-total, .col-npv-total').text('0.00');
-            $('#grand-total, #grand-npv-total, #grand-npv-total-footer').text('0.00');
-            $('.row-total, .row-npv-total').text('0.00');
+            $('.col-total').text('0.00');
+            $('#grand-total').text('0.00');
+            $('.row-total').text('0.00');
             $('#distribution-error').hide();
             toastr.warning('A new bid was placed. Your form has been reset — please enter a new bid above ₹ ' + Number(minNext).toLocaleString('en-IN') + '.', 'Bid Reset', { timeOut: 8000, progressBar: true });
         } else {
@@ -652,10 +635,10 @@ $(function () {
         // For recommend type: warn if bid is below base value
         if (incrementAmountType === 'recommend' && bidAmount < baseValue + increment) {
             Swal.fire({
-                title: '&#9888; Bid Below Recommended Amount',
+                title: '&#9888; Challenge Amount Below Current Resolution Amount (Base Value)',
                 html: '<div style="text-align:left; font-size:13px; line-height:1.7;">' +
                       '<p>Your bid of <strong style="color:#e74c3c;">' + formatINR(bidAmount) + '</strong> is <strong>below the recommended minimum</strong> of <strong style="color:#11998e;">' + formatINR(baseValue + increment) + '</strong>.</p>' +
-                      '<p style="margin-top:8px;">Submitting a bid lower than the current base value may result in your bid being considered <strong>non-compliant</strong> during the evaluation process.</p>' +
+                      '<p style="margin-top:8px;">once submitted you bid is irreversible. However, you can submit fresh bid, as long as the challenge process is live.  </p>' +
                       '<p style="margin-top:8px; color:#888;">Do you still wish to proceed with this bid?</p>' +
                       '</div>',
                 icon: 'warning',

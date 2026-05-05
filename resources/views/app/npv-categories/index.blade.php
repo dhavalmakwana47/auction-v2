@@ -1,5 +1,5 @@
 @extends('app.layout.app')
-@section('page_title') NPV Categories @endsection
+@section('page_title') Description of Creditors @endsection
 
 @section('header-script')
 <link rel="stylesheet" href="{{ asset('plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
@@ -16,12 +16,12 @@
                 <i class="fas fa-tags text-white"></i>
             </div>
             <div>
-                <h3 class="card-title text-white font-weight-bold mb-0" style="font-size:18px;">NPV Categories</h3>
-                <small class="text-white-50">Manage NPV categories</small>
+                <h3 class="card-title text-white font-weight-bold mb-0" style="font-size:18px;">Description of Creditors</h3>
+                
             </div>
         </div>
         <a href="{{ route('npv-categories.create') }}" class="btn btn-light btn-sm font-weight-bold mt-2 mt-sm-0" style="border-radius:20px;">
-            <i class="fas fa-plus mr-1"></i> Add Category
+            <i class="fas fa-plus mr-1"></i> Add Description of Creditors
         </a>
     </div>
 
@@ -36,8 +36,9 @@
                     <tr>
                         <th width="50">#</th>
                         <th>Name</th>
-                        <th class="none">Description</th>
+                       <th>Description</th>
                         <th>Status</th>
+                        <th class="none">Created Date</th>
                         <th class="text-center">Action</th>
                     </tr>
                 </thead>

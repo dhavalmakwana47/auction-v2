@@ -29,12 +29,19 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email',
-            'password' => 'required|min:6|confirmed',
-            'role'     => 'nullable|exists:roles,name',
-        ]);
+        $isRa = strtolower($request->input('role')) === 'ra';
+
+        $rules = [
+            'name'  => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'role'  => 'nullable|string|exists:roles,name',
+        ];
+
+        if (!$isRa) {
+            $rules['password'] = 'required|min:6|confirmed';
+        }
+
+        $request->validate($rules);
 
         $this->userService->create($request->all());
 

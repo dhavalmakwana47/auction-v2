@@ -37,6 +37,7 @@
                         <th width="50">#</th>
                         <th>Role Name</th>
                         <th class="none">Permissions</th>
+                        <th class="none">Created Date</th>
                         <th class="text-center">Action</th>
                     </tr>
                 </thead>

@@ -25,7 +25,7 @@
     .cp-header .meta { color: rgba(255,255,255,0.75); font-size: 12px; display: flex; flex-wrap: wrap; gap: 16px; }
     .cp-header .meta span { display: flex; align-items: center; gap: 5px; }
     .badge-active {
-        background: #fff; color: #11998e;
+        background: #fff; color: #2f80ed;
         border-radius: 20px; padding: 6px 16px;
         font-size: 12px; font-weight: 700;
         display: inline-flex; align-items: center; gap: 6px;
@@ -33,7 +33,7 @@
     }
     .badge-active .dot {
         width: 8px; height: 8px; border-radius: 50%;
-        background: #11998e; animation: pulse 1.5s infinite;
+        background: #2f80ed; animation: pulse 1.5s infinite;
     }
     @keyframes pulse {
         0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
@@ -183,9 +183,9 @@
     <div class="col-md-6 col-12 mb-3">
         <div class="summary-card d-flex align-items-center justify-content-between" style="border-left-color:#2980b9;">
             <div>
-                <div class="s-label" style="color:#2980b9;">Current Base Value</div>
+                <div class="s-label" style="color:#2980b9;">Resolution Plan Amount (Current Base Value)</div>
                 <div class="s-value" id="cp-current-base">&#8377; {{ $highestBid ? number_format($highestBid->bid_amount) : number_format($auction->base_price) }}</div>
-                <div class="s-sub" id="cp-current-base-sub">{{ $highestBid ? '(From highest valid bid)' : '(No bids yet — showing configured)' }}</div>
+                <div class="s-sub" id="cp-current-base-sub">{{ $highestBid ? '(From highest valid bid)' : '' }}</div>
             </div>
             <div class="s-icon" style="background:linear-gradient(135deg,#2980b9,#6dd5fa);"><i class="fas fa-arrow-trend-up text-white fa-lg"></i></div>
         </div>
@@ -193,9 +193,9 @@
     <div class="col-md-6 col-12 mb-3">
         <div class="summary-card d-flex align-items-center justify-content-between" style="border-left-color:#8e44ad;">
             <div>
-                <div class="s-label" style="color:#8e44ad;">Current NPV Value</div>
+                <div class="s-label" style="color:#8e44ad;">NPV OF RESOLUTION PLAN AMOUNT (CURRENT BASE VALUE)</div>
                 <div class="s-value" id="cp-current-npv">&#8377; {{ $highestBid ? number_format($highestBid->total_npv, 2) : number_format($auction->initial_npv_value, 2) }}</div>
-                <div class="s-sub" id="cp-current-npv-sub">{{ $highestBid ? '(From highest valid bid)' : '(No bids yet — showing configured)' }}</div>
+                <div class="s-sub" id="cp-current-npv-sub">{{ $highestBid ? '(From highest valid bid)' : '' }}</div>
             </div>
             <div class="s-icon" style="background:linear-gradient(135deg,#8e44ad,#c39bd3);"><i class="fas fa-chart-bar text-white fa-lg"></i></div>
         </div>
@@ -205,7 +205,7 @@
             <div>
                 <div class="s-label">Minimum Increment</div>
                 <div class="s-value">&#8377; {{ number_format($auction->increment_amount) }}</div>
-                <div class="s-sub">(Configured by RP)</div>
+                <div class="s-sub"></div>
             </div>
             <div class="s-icon"><i class="fas fa-plus text-white fa-lg"></i></div>
         </div>
@@ -215,7 +215,7 @@
             <div>
                 <div class="s-label">Total Bids</div>
                 <div class="s-value" id="cp-total-bids">{{ $auction->bids->count() }}</div>
-                <div class="s-sub">(Valid: <span id="cp-valid-bids">{{ $auction->bids->where('status', 'confirmed')->count() }}</span>)</div>
+               
             </div>
             <div class="s-icon"><i class="fas fa-gavel text-white fa-lg"></i></div>
         </div>
@@ -228,7 +228,7 @@
     <div class="col-12">
         <div class="cp-card">
             <div class="cp-card-header">
-                <i class="fas fa-stream"></i> Live Bid Timeline
+                <i class="fas fa-stream"></i> LIVE BIDS
             </div>
             <div class="px-3 pt-3">
                 <div class="note-box">

@@ -36,9 +36,10 @@
                     <tr>
                         <th width="50">#</th>
                         <th>Name</th>
-                        <th class="none">Email</th>
+                        <th class="none">Email ID</th>
                         <th>Role</th>
                         <th>Status</th>
+                        <th class="none">Created Date</th>
                         <th class="none text-center">Action</th>
                     </tr>
                 </thead>

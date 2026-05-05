@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>India E-auction - Empowering Creditor Participation in Insolvency Proceedings</title>
+    <title>NPV CHALLENGE MECHANISM</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -36,6 +36,7 @@
     <!-- Main CSS File -->
     <link href="{{ asset('homepage/assets/css/main.css') }}" rel="stylesheet">
     <style>
+    
         .error {
             color: red;
         }
@@ -50,8 +51,8 @@
             margin-bottom: 20px;
             border: 1px solid transparent;
             border-radius: 4px;
-            color: #3c763d;
-            background-color: #dff0d8;
+           
+            
             border-color: #d6e9c6;
         }
     </style>
@@ -67,7 +68,7 @@
             <div class="container d-flex justify-content-center justify-content-md-between">
                 <div class="contact-info d-flex align-items-center">
                     <i class="bi bi-envelope d-flex align-items-center"><a
-                            href="mailto:admin@indiaeauction.com">admin@indiaeauction.com</a></i>
+                            href="mailto:admin@indiaeauction.com">mail@apexriseconsultant.com</a></i>
                     <i class="bi bi-phone d-flex align-items-center ms-4"><span>+91 7990 8223 51</span></i>
                 </div>
                 {{-- <div class="social-links d-none d-md-flex align-items-center">
@@ -84,7 +85,7 @@
             <div class="container position-relative d-flex align-items-center justify-content-between">
                 <a href="" class="logo d-flex align-items-center">
                     <!-- Uncomment the line below if you also wish to use an image logo -->
-                    <img src="{{ asset('homepage/assets/img/logo.png') }}" alt="">
+                   <!-- <img src="{{ asset('homepage/assets/img/logo.png') }}" alt=""> -->
                     <!-- <h1 class="sitename">India E-auction</h1> -->
                     <!-- <span></span> -->
                     <b></i> <span id="clock"></span></b>
@@ -141,9 +142,9 @@
             <div class="row gy-4">
                 <div class="col-lg-5 col-md-12 footer-about">
                     <a href="" class="logo d-flex align-items-center">
-                        <span class="sitename">India E-auction</span>
+                        <span class="sitename">NPV CHALLENGE MECHANISM</span>
                     </a>
-                    <p>We offer a unique platform for buying and selling services through online auctions.</p>
+                    <p>The NPV Challenge Mechanism enables applicants to request a review or correction of the Net Present Value (NPV) calculated for their project or application.</p>
                     <!--  <div class="social-links d-flex mt-4">
                         <a href=""><i class="bi bi-twitter-x"></i></a>
                         <a href=""><i class="bi bi-facebook"></i></a>
@@ -165,9 +166,9 @@
                 <div class="col-lg-2 col-6 footer-links">
                     <h4>Our Links</h4>
                     <ul>
-                        <li><a href="/policy">Privacy policy</a></li>
+                      <!--   <li><a href="/policy">Privacy policy</a></li>
                         <li><a href="/terms-of-service">Terms of service</a></li>
-                        <!--  <li><a href="#">Web Design</a></li>
+                         <li><a href="#">Web Design</a></li>
                         <li><a href="#">Web Development</a></li>
                         <li><a href="#">Product Management</a></li>
                         <li><a href="#">Marketing</a></li>
@@ -182,14 +183,14 @@
                     <p>United States</p> -->
                     <p class="mt-4"><strong>Phone:</strong> <span>+91 7990 8223 51</span></p>
                     <p><strong>Email:</strong> <span>admin@indiaeauction.com</span></p>
-                    <p><Strong>Vistor Count:</Strong> <span id="visitor-count">1256+</span></p>
+                    
                 </div>
 
             </div>
         </div>
 
         <div class="container copyright text-center mt-4">
-            <p>© <span>Copyright</span> <strong class="px-1 sitename">India E-auction</strong> <span>All Rights
+            <p>© <span>Copyright</span> <strong class="px-1 sitename">NPV CHALLENGE MECHANISM</strong> <span>All Rights
                     Reserved</span> Apexrise Consultant and E-Service
             </p>
             <!--   <div class="credits">

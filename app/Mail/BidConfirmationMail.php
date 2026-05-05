@@ -18,7 +18,7 @@ class BidConfirmationMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Bid Confirmation – ' . $this->bid->auction->corporate_debtor_name,
+            subject: $this->bid->auction->corporate_debtor_name . ' - CHALLENGE BID SUBMITTED',
         );
     }
 

@@ -1,5 +1,5 @@
 @extends('app.layout.app')
-@section('page_title') Auctions @endsection
+@section('page_title') Challenge Mechanism @endsection
 
 @section('header-script')
 <link rel="stylesheet" href="{{ asset('plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
@@ -16,12 +16,12 @@
                 <i class="fas fa-gavel text-white"></i>
             </div>
             <div>
-                <h3 class="card-title text-white font-weight-bold mb-0" style="font-size:18px;">Auction Management</h3>
-                <small class="text-white-50">Manage all auctions</small>
+                <h3 class="card-title text-white font-weight-bold mb-0" style="font-size:18px;">Challenge Mechanism</h3>
+                <small class="text-white-50">Manage all challenge mechanisms</small>
             </div>
         </div>
         <a href="{{ route('auctions.create') }}" class="btn btn-light btn-sm font-weight-bold mt-2 mt-sm-0" style="border-radius:20px;">
-            <i class="fas fa-plus mr-1"></i> Add Auction
+            <i class="fas fa-plus mr-1"></i> Add Challenge Mechanism
         </a>
     </div>
 
@@ -36,10 +36,11 @@
                     <tr>
                         <th width="50">#</th>
                         <th>Corporate Debtor</th>
-                        <th class="none">Meeting Date</th>
+                        <th class="none">Date of Challenge Process</th>
                         <th class="none">Base Price</th>
-                        <th class="none">Initial NPV Value</th>
+                        <th class="none">NPV</th>
                         <th>Increment Type</th>
+                        <th class="none">Created Date</th>
                         <th class="text-center">Action</th>
                     </tr>
                 </thead>

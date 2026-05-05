@@ -16,21 +16,21 @@
         <li class="nav-item">
             <a href="{{ route('ra.dashboard') }}" class="nav-link {{ Request::routeIs('ra.dashboard') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-gavel"></i>
-                <p>Challenge Mechanism Portal</p>
+                <p>Challenge Mechanism</p>
             </a>
         </li>
         @endcan
 
         {{-- Auction Management --}}
         @canany(['view auctions', 'view npv-categories'])
-        <li class="nav-header text-uppercase" style="font-size:10px; letter-spacing:1px; opacity:.6;">Auction Management</li>
+        <li class="nav-header text-uppercase" style="font-size:10px; letter-spacing:1px; opacity:.6;">Challenge Mechanism Management</li>
         @endcanany
 
         @can('view npv-categories')
         <li class="nav-item">
             <a href="{{ route('npv-categories.index') }}" class="nav-link {{ Request::routeIs('npv-categories.*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-tags"></i>
-                <p>NPV Categories</p>
+                <p>Description of Creditors</p>
             </a>
         </li>
         @endcan
@@ -39,7 +39,7 @@
         <li class="nav-item">
             <a href="{{ route('auctions.index') }}" class="nav-link {{ Request::routeIs('auctions.*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-gavel"></i>
-                <p>Auctions</p>
+                <p>Challenge Mechanism</p>
             </a>
         </li>
         @endcan

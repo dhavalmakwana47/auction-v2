@@ -15,7 +15,6 @@ class Auction extends Model
         'increment_type',
         'process_decleration',
         'status',
-        'ending_period',
         'initial_npv_value',
         'created_by',
         'started_at',

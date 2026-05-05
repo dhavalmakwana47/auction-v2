@@ -11,7 +11,7 @@
 
 <p>Please note as follows –</p>
 
-<p><strong>A. Bid Submission Details</strong></p>
+<p><strong>A. Details of Challenge Bid Submitted</strong></p>
 <table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse; width:100%; font-size:13px;">
     <tr style="background:#f0f0f0;">
         <th align="left">Bid Sl. No.</th>
@@ -35,7 +35,7 @@
 
 <p><strong>B. Bid Submitted during Challenge Mechanism during CoC meeting held on
 {{ \Carbon\Carbon::parse($bid->auction->meeting_date)->format('d.m.Y') }}
-THROUGH Indian E-voting Platform (Service Provider)</strong></p>
+THROUGH Apexrise Consultant and E-Service (Service Provider)</strong></p>
 
 @php
     $configs   = $bid->auction->npvpConfigurations;
@@ -93,7 +93,7 @@ THROUGH Indian E-voting Platform (Service Provider)</strong></p>
 
 <br>
 <p>Thanks &amp; regards,<br>
-<strong>India E-Voting Support Service</strong></p>
+<strong>Apexrise Consultant and E-Service Support Service</strong></p>
 
 </body>
 </html>

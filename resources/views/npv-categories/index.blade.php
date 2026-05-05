@@ -10,8 +10,8 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title" style="font-size: 21px;">NPV Category List</h3>
-                    <a href="{{ route('npv-categories.create') }}" class="btn btn-primary float-right nav-link">Add NPV Category</a>
+                    <h3 class="card-title" style="font-size: 21px;">Description of Creditors</h3>
+                    <a href="{{ route('npv-categories.create') }}" class="btn btn-primary float-right nav-link">Add Description of Creditors</a>
                 </div>
 
                 <div class="card-body">
@@ -24,7 +24,7 @@
                                 <tr>
                                     <th>#</th>
                                     <th>Name</th>
-                                    <th>Description</th>
+                                    
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
@@ -34,7 +34,7 @@
                                 <tr>
                                     <td>{{ $category->id }}</td>
                                     <td>{{ $category->name }}</td>
-                                    <td>{{ Str::limit($category->description, 50) }}</td>
+                                    
                                     <td>
                                         <span class="badge badge-{{ $category->is_active ? 'success' : 'danger' }}">
                                             {{ $category->is_active ? 'Active' : 'Inactive' }}
@@ -47,7 +47,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="5" class="text-center">No categories found</td>
+                                    <td colspan="5" class="text-center">No Description of Creditors found</td>
                                 </tr>
                                 @endforelse
                             </tbody>
@@ -66,7 +66,7 @@
         function deleteCategory(id) {
             Swal.fire({
                 title: 'Are you sure?',
-                text: "You want to delete this category",
+                text: "You want to delete this Description of Creditors",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -82,7 +82,7 @@
                             "_token": "{{ csrf_token() }}"
                         },
                         success: function() {
-                            createMessage('Category deleted successfully')
+                            createMessage('Description of Creditors deleted successfully')
                             location.reload();
                         }
                     });
