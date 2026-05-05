@@ -67,48 +67,7 @@
                     </div>
                 </div>
             </div>
-
-            <div id="password-section">
-            <p class="form-section-title mt-3"><i class="fas fa-lock mr-1"></i> Password</p>
-            <div class="row">
-                <div class="col-md-6 col-12">
-                    <div class="form-group">
-                        <label>
-                            Password @if(!isset($user))<span class="text-danger" id="pwd-required">*</span>@endif
-                            @if(isset($user))<small class="text-muted font-weight-normal">(leave blank to keep current)</small>@endif
-                        </label>
-                        <div class="input-icon-wrap" style="position:relative;">
-                            <i class="fas fa-lock input-icon"></i>
-                            <input type="password" name="password" id="password"
-                                class="form-control @error('password') is-invalid @enderror"
-                                placeholder="{{ isset($user) ? 'Leave blank to keep current' : 'Enter password' }}"
-                                style="padding-right:40px;">
-                            <span class="password-toggle" onclick="togglePass('password', this)">
-                                <i class="fas fa-eye"></i>
-                            </span>
-                        </div>
-                        @error('password')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                    </div>
-                </div>
-                <div class="col-md-6 col-12">
-                    <div class="form-group">
-                        <label>Confirm Password @if(!isset($user))<span class="text-danger" id="pwd-confirm-required">*</span>@endif</label>
-                        <div class="input-icon-wrap" style="position:relative;">
-                            <i class="fas fa-lock input-icon"></i>
-                            <input type="password" name="password_confirmation" id="password_confirmation"
-                                class="form-control"
-                                placeholder="Confirm password"
-                                style="padding-right:40px;">
-                            <span class="password-toggle" onclick="togglePass('password_confirmation', this)">
-                                <i class="fas fa-eye"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            </div>
-
-            <p class="form-section-title mt-3"><i class="fas fa-sliders-h mr-1"></i> Role & Status</p>
+        <p class="form-section-title mt-3"><i class="fas fa-sliders-h mr-1"></i> Role & Status</p>
             <div class="row">
                 <div class="col-md-6 col-12">
                     <div class="form-group">
@@ -149,6 +108,47 @@
                     </div>
                 </div>
             </div>
+            <div id="password-section">
+            <p class="form-section-title mt-3"><i class="fas fa-lock mr-1"></i> Password</p>
+            <div class="row">
+                <div class="col-md-6 col-12">
+                    <div class="form-group">
+                        <label>
+                            Password @if(!isset($user))<span class="text-danger" id="pwd-required">*</span>@endif
+                            @if(isset($user))<small class="text-muted font-weight-normal">(leave blank to keep current)</small>@endif
+                        </label>
+                        <div class="input-icon-wrap" style="position:relative;">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" name="password" id="password"
+                                class="form-control @error('password') is-invalid @enderror"
+                                placeholder="{{ isset($user) ? 'Leave blank to keep current' : 'Enter password' }}"
+                                style="padding-right:40px;">
+                            <span class="password-toggle" onclick="togglePass('password', this)">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                        </div>
+                        @error('password')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                    </div>
+                </div>
+                <div class="col-md-6 col-12">
+                    <div class="form-group">
+                        <label>Confirm Password @if(!isset($user))<span class="text-danger" id="pwd-confirm-required">*</span>@endif</label>
+                        <div class="input-icon-wrap" style="position:relative;">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" name="password_confirmation" id="password_confirmation"
+                                class="form-control"
+                                placeholder="Confirm password"
+                                style="padding-right:40px;">
+                            <span class="password-toggle" onclick="togglePass('password_confirmation', this)">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+    
 
         </div>
 

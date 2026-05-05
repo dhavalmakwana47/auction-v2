@@ -11,11 +11,11 @@
 
 <p>Please note as follows –</p>
 
-<p><strong>A. Details of Challenge Bid Submitted</strong></p>
+<p><strong>A. Bid Submission Details</strong></p>
 <table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse; width:100%; font-size:13px;">
     <tr style="background:#f0f0f0;">
-        <th align="left">Bid Sl. No.</th>
-        <td>{{ $bid->id }}</td>
+        <th align="left" width="40%">Bid Sl. No.</th>
+        <td>{{ $bidIndex }}</td>
     </tr>
     <tr>
         <th align="left">Date / Time of Bid Submission</th>
@@ -35,18 +35,23 @@
 
 <p><strong>B. Bid Submitted during Challenge Mechanism during CoC meeting held on
 {{ \Carbon\Carbon::parse($bid->auction->meeting_date)->format('d.m.Y') }}
-THROUGH Apexrise Consultant and E-Service (Service Provider)</strong></p>
+THROUGH Indian E-voting Platform (Service Provider)</strong></p>
 
 @php
-    $configs   = $bid->auction->npvpConfigurations;
+    $configs    = $bid->auction->npvpConfigurations;
     $categories = $bid->auction->npvCategories;
-    $distMap   = [];
+    $distMap    = [];
     foreach ($bid->distributions as $d) {
         $distMap[$d->npv_category_id][$d->npvp_configuration_id] = $d->amount;
     }
-    $colTotals = [];
-    foreach ($configs as $cfg) { $colTotals[$cfg->id] = 0; }
-    $grandTotal = 0;
+    $colTotals    = [];
+    $colNpvTotals = [];
+    foreach ($configs as $cfg) {
+        $colTotals[$cfg->id]    = 0;
+        $colNpvTotals[$cfg->id] = 0;
+    }
+    $grandTotal    = 0;
+    $grandNpvTotal = 0;
 @endphp
 
 <table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse; width:100%; font-size:12px;">
@@ -56,20 +61,24 @@ THROUGH Apexrise Consultant and E-Service (Service Provider)</strong></p>
             @foreach($configs as $cfg)
                 <th>{{ $cfg->period }} Days</th>
             @endforeach
-            <th>Total (₹)</th>
+            <th>Total (&#8377;)</th>
         </tr>
     </thead>
     <tbody>
         @foreach($categories as $cat)
-        @php $rowTotal = 0; @endphp
+        @php $rowTotal = 0; $rowNpv = 0; @endphp
         <tr>
             <td>{{ $cat->name }}</td>
             @foreach($configs as $cfg)
                 @php
-                    $amt = $distMap[$cat->id][$cfg->id] ?? 0;
+                    $amt    = $distMap[$cat->id][$cfg->id] ?? 0;
+                    $npvVal = $amt * (float) $cfg->percentage_value;
                     $rowTotal += $amt;
-                    $colTotals[$cfg->id] += $amt;
-                    $grandTotal += $amt;
+                    $rowNpv   += $npvVal;
+                    $colTotals[$cfg->id]    += $amt;
+                    $colNpvTotals[$cfg->id] += $npvVal;
+                    $grandTotal    += $amt;
+                    $grandNpvTotal += $npvVal;
                 @endphp
                 <td align="right">{{ $amt > 0 ? number_format($amt, 2) : '—' }}</td>
             @endforeach
@@ -85,15 +94,35 @@ THROUGH Apexrise Consultant and E-Service (Service Provider)</strong></p>
             @endforeach
             <td align="right">{{ number_format($grandTotal, 2) }}</td>
         </tr>
+        <tr style="background:#e0f7f5; font-weight:bold;">
+            <td>NPV Total</td>
+            @foreach($configs as $cfg)
+                <td align="right">{{ number_format($colNpvTotals[$cfg->id], 2) }}</td>
+            @endforeach
+            <td align="right">{{ number_format($grandNpvTotal, 2) }}</td>
+        </tr>
     </tfoot>
 </table>
 
 <br>
-<p><strong>Remarks:</strong> Bid Amount: ₹ {{ number_format($bid->bid_amount, 2) }} | NPV: ₹ {{ number_format($bid->total_npv, 2) }}</p>
+<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse; width:100%; font-size:13px;">
+    <tr style="background:#f0f0f0;">
+        <th align="left" width="40%">Bid Amount (&#8377;)</th>
+        <td>{{ number_format($bid->bid_amount, 2) }}</td>
+    </tr>
+    <tr>
+        <th align="left">NPV of Bid Amount (&#8377;)</th>
+        <td>{{ number_format($bid->total_npv, 2) }}</td>
+    </tr>
+    <tr style="background:#f0f0f0;">
+        <th align="left">Remarks</th>
+        <td>{{ $remark }}</td>
+    </tr>
+</table>
 
 <br>
 <p>Thanks &amp; regards,<br>
-<strong>Apexrise Consultant and E-Service Support Service</strong></p>
+<strong>India E-Voting Support Service</strong></p>
 
 </body>
 </html>

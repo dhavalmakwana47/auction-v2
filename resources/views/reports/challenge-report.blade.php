@@ -67,7 +67,7 @@
         <tr>
             <td class="text-center">{{ $i + 1 }}</td>
             <td>{{ $row['user']->name ?? '&mdash;' }}</td>
-            <td class="text-center">{{ $row['best'] ? $row['best']->id : '&mdash;' }}</td>
+            <td class="text-center">{{ $row['best'] ? $bidIndexMap[$row['best']->id] : '&mdash;' }}</td>
             <td class="text-right">
                 @if($row['best'])
                     {{ number_format($row['best']->bid_amount, 2) }}
@@ -100,7 +100,7 @@
         @foreach($allBids as $row)
         @php $bid = $row['bid']; @endphp
         <tr>
-            <td class="text-center">{{ $bid->id }}</td>
+            <td class="text-center">{{ $bidIndexMap[$bid->id] }}</td>
             <td class="text-right">{{ number_format($row['base'], 2) }}</td>
             <td>{{ $bid->user->name ?? '&mdash;' }}</td>
             <td class="text-center" style="white-space:nowrap;">{{ $bid->created_at->format('d.m.Y') }} &ndash; {{ $bid->created_at->format('H:i') }}</td>

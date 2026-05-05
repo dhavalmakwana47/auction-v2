@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Mail\RaInvitationMail;
 use App\Models\Auction;
 use App\Models\NpvCategory;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Yajra\DataTables\Facades\DataTables;
 
 class AuctionService
@@ -59,6 +61,12 @@ class AuctionService
             ->get(['id', 'name', 'email']);
     }
 
+    public function getRpUsers()
+    {
+        return User::whereHas('roles', fn($q) => $q->whereRaw('LOWER(name) IN (?)', ['Resolution Professional (RP)']))
+            ->get(['id', 'name', 'email']);
+    }
+
     public function getNpvCategories()
     {
         return NpvCategory::where('is_active', 1)->pluck('name', 'id');
@@ -71,10 +79,11 @@ class AuctionService
             'meeting_date'          => $data['meeting_date'],
             'base_price'            => $data['base_price'],
             'increment_amount'      => $data['increment_amount'],
+            'increment_amount_type' => $data['increment_amount_type'],
             'increment_type'        => $data['increment_type'],
             'process_decleration'   => $data['process_decleration'] ?? null,
             'initial_npv_value'     => $data['initial_npv_value'],
-            'created_by'            => Auth::id(),
+            'created_by'            => !empty($data['rp_user_id']) ? $data['rp_user_id'] : Auth::id(),
         ]);
 
         if (!empty($data['participants'])) {
@@ -99,6 +108,13 @@ class AuctionService
             }
         }
 
+        if (!empty($data['participants'])) {
+            $raUsers = User::whereIn('id', $data['participants'])->get();
+            foreach ($raUsers as $ra) {
+                Mail::to($ra->email)->send(new RaInvitationMail($auction, $ra));
+            }
+        }
+
         return $auction;
     }
 
@@ -114,10 +130,20 @@ class AuctionService
             'initial_npv_value'     => $data['initial_npv_value'],
         ]);
 
+        $existingUserIds = $auction->participants()->pluck('user_id')->toArray();
+        $newUserIds = array_diff($data['participants'] ?? [], $existingUserIds);
+
         $auction->participants()->delete();
         if (!empty($data['participants'])) {
             foreach ($data['participants'] as $userId) {
                 $auction->participants()->create(['user_id' => $userId]);
+            }
+        }
+
+        if (!empty($newUserIds)) {
+            $newRaUsers = User::whereIn('id', $newUserIds)->get();
+            foreach ($newRaUsers as $ra) {
+                Mail::to($ra->email)->send(new RaInvitationMail($auction, $ra));
             }
         }
 

@@ -1,8 +1,13 @@
-@extends('app.layout.app')
-@section('page_title') Challenge Mechanism Portal — {{ $auction->corporate_debtor_name }} @endsection
+﻿@extends('app.layout.app')
+@section('page_title') Challenge Mechanism Portal â€” {{ $auction->corporate_debtor_name }} @endsection
 
 @section('header-script')
 <link rel="stylesheet" href="{{ asset('app/ra/dashboard.css') }}">
+<style>
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
+</style>
 <link rel="stylesheet" href="{{ asset('plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
 <link rel="stylesheet" href="{{ asset('plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
 <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
@@ -40,22 +45,20 @@
         <div class="ra-stat-card d-flex align-items-center justify-content-between">
             <div>
                 <div class="stat-label">Resolution Plan Amount (Current Base Value)</div>
-                <div class="stat-value">&#8377; {{ number_format($highestBid) }}</div>
-               
+                <div class="stat-value" id="portal-base-value">&#8377; {{ number_format($highestBid) }}</div>
             </div>
             <div class="stat-icon"><i class="fas fa-rupee-sign text-white fa-lg"></i></div>
         </div>
     </div>
-    {{--<div class="col-md-6 col-12 mb-3 mb-md-0">
-        <div class="ra-stat-card d-flex align-items-center justify-content-between">
+    <div class="col-md-6 col-12 mb-3">
+        <div class="ra-stat-card d-flex align-items-center justify-content-between" style="border-left:4px solid #8e44ad;">
             <div>
-                <div class="stat-label">Minimum Next Bid</div>
-                <div class="stat-value">&#8377; {{ number_format($highestBid + $auction->increment_amount) }}</div>
-                <div class="stat-note">Base Value + Minimum Increment</div>
+                <div class="stat-label" style="color:#8e44ad;">Current NPV Value</div>
+                <div class="stat-value" id="portal-npv-value">&#8377; {{ number_format($currentNpv, 2) }}</div>
             </div>
-            <div class="stat-icon"><i class="fas fa-arrow-up text-white fa-lg"></i></div>
+            <div class="stat-icon" style="background:linear-gradient(135deg,#8e44ad,#c39bd3);"><i class="fas fa-chart-bar text-white fa-lg"></i></div>
         </div>
-    </div> --}}
+    </div>
 </div>
 
 {{-- Resolution Amount --}}
@@ -238,15 +241,15 @@
             <div class="d-flex" style="background:#f0f8ff; border-bottom:1px solid #d0e8f8; padding:12px 20px; gap:24px; flex-wrap:wrap;">
                 <div style="font-size:12px; color:#555;">
                     <i class="fas fa-gavel mr-1" style="color:#0d6efd;"></i>
-                    Total Bids: <strong id="my-bids-total">—</strong>
+                    Total Bids: <strong id="my-bids-total">â€”</strong>
                 </div>
                 <div style="font-size:12px; color:#555;">
                     <i class="fas fa-check-circle mr-1" style="color:#27ae60;"></i>
-                    Valid: <strong id="my-bids-valid">—</strong>
+                    Valid: <strong id="my-bids-valid">â€”</strong>
                 </div>
                 <div style="font-size:12px; color:#555;">
                     <i class="fas fa-arrow-up mr-1" style="color:#0d6efd;"></i>
-                    Highest: <strong id="my-bids-highest">—</strong>
+                    Highest: <strong id="my-bids-highest">â€”</strong>
                 </div>
             </div>
 
@@ -254,7 +257,7 @@
                 <table id="my-bids-table" class="table table-hover mb-0" style="width:100%; font-size:13px;">
                     <thead>
                         <tr style="background:#eaf4fd;">
-                            <th style="width:40px; color:#0d6efd;">#</th>
+                            <th style="width:50px; color:#0d6efd;">Bid #</th>
                             <th style="color:#0d6efd;">Bid Amount</th>
                             <th style="color:#0d6efd;">NPV Amount</th>
                             <th style="color:#0d6efd;">Status</th>
@@ -285,7 +288,7 @@ $(function () {
     var bidUrl    = '{{ route('ra.auction.bid', $auction) }}';
 
     function formatINR(num) {
-        return '₹ ' + Number(num).toLocaleString('en-IN');
+        return 'â‚¹ ' + Number(num).toLocaleString('en-IN');
     }
 
     var topBidsUrl = '{{ route('ra.auction.top-bids', $auction) }}';
@@ -369,9 +372,9 @@ $(function () {
             serverSide: true,
             ajax: { url: myBidsUrl, type: 'GET' },
             columns: [
-                { data: 'DT_RowIndex', orderable: false, searchable: false, width: '40px',
+                { data: 'bid_number', orderable: false, searchable: false, width: '50px',
                   render: function (data) {
-                      return '<span style="font-weight:600; color:#0d6efd;">' + data + '</span>';
+                      return '<span style="font-weight:700; color:#2980b9; font-size:13px;">' + data + '</span>';
                   }
                 },
                 { data: 'bid_amount',
@@ -417,7 +420,7 @@ $(function () {
         });
     });
 
-    // ── Disable inputs initially ──
+    // â”€â”€ Disable inputs initially â”€â”€
     $('.npv-amount-input').prop('disabled', true);
     $('#btn-place-bid').prop('disabled', true);
 
@@ -425,15 +428,15 @@ $(function () {
         if (isNaN(value) || value <= 0) return 'Please enter a valid amount.';
         if (incrementAmountType === 'mandatory') {
             var minBid = baseValue + increment;
-            if (value < minBid) return 'Amount must be at least ₹ ' + minBid.toLocaleString('en-IN') + ' (Base + Increment).';
-            if (incrementType !== 'fixed' && increment > 0 && Math.round(value % increment * 1e6) / 1e6 > 0.001) return 'Amount must be a multiple of ₹ ' + increment.toLocaleString('en-IN') + '.';
+            if (value < minBid) return 'Amount must be at least â‚¹ ' + minBid.toLocaleString('en-IN') + ' (Base + Increment).';
+            if (incrementType !== 'fixed' && increment > 0 && Math.round(value % increment * 1e6) / 1e6 > 0.001) return 'Amount must be a multiple of â‚¹ ' + increment.toLocaleString('en-IN') + '.';
         }
         return null;
     }
 
-    // ── Submit: verify bid amount ──
+    // â”€â”€ Submit: verify bid amount â”€â”€
     $('#btn-verify-bid').on('click', function () {
-        var raw   = $('#bid-amount').val().replace(/[₹,\s]/g, '');
+        var raw   = $('#bid-amount').val().replace(/[â‚¹,\s]/g, '');
         var value = parseFloat(raw);
 
         $('#bid-error').hide();
@@ -460,7 +463,7 @@ $(function () {
         recalculate();
     });
 
-    // ── Reset ──
+    // â”€â”€ Reset â”€â”€
     $('#btn-reset-bid').on('click', function () {
         bidAmount = 0;
         $('#bid-amount').val('').prop('disabled', false).removeClass('is-invalid');
@@ -478,7 +481,7 @@ $(function () {
         $('#distribution-error').hide();
     });
 
-    // ── Live totals ──
+    // â”€â”€ Live totals â”€â”€
     function recalculate() {
         var grandTotal = 0;
 
@@ -518,7 +521,7 @@ $(function () {
 
     $(document).on('input', '.npv-amount-input', recalculate);
 
-    // ── Pusher: real-time bid updates ──
+    // â”€â”€ Pusher: real-time bid updates â”€â”€
     var pusher  = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', {
         cluster: '{{ env('PUSHER_APP_CLUSTER', 'mt1') }}',
         encrypted: true
@@ -530,8 +533,10 @@ $(function () {
         var minNext = parseFloat(data.minimum_next);
 
         // Update stat cards
-        $('.stat-value').first().html('&#8377; ' + Number(data.highest_bid).toLocaleString('en-IN'));
-        $('.stat-value').eq(1).html('&#8377; ' + Number(minNext).toLocaleString('en-IN'));
+        $('#portal-base-value').html('&#8377; ' + Number(data.highest_bid).toLocaleString('en-IN'));
+        if (data.total_npv) {
+            $('#portal-npv-value').html('&#8377; ' + Number(data.total_npv).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+        }
 
         // Update ALL hint notes with new values
         $('#note-base-value').html('<i class="fas fa-info-circle"></i> Must be greater than Current Base Value (&#8377; ' + Number(data.highest_bid).toLocaleString('en-IN') + ')');
@@ -545,7 +550,7 @@ $(function () {
         var bidLocked = $('#bid-amount').prop('disabled');
 
         if (bidLocked) {
-            // In distribution stage — full reset, bidAmount is now stale
+            // In distribution stage â€” full reset, bidAmount is now stale
             bidAmount = 0;
             $('#bid-amount').val('').prop('disabled', false).removeClass('is-invalid');
             $('#btn-verify-bid').prop('disabled', false);
@@ -560,10 +565,10 @@ $(function () {
             $('#grand-total').text('0.00');
             $('.row-total').text('0.00');
             $('#distribution-error').hide();
-            toastr.warning('A new bid was placed. Your form has been reset — please enter a new bid above ₹ ' + Number(minNext).toLocaleString('en-IN') + '.', 'Bid Reset', { timeOut: 8000, progressBar: true });
+            toastr.warning('A new bid was placed. Your form has been reset â€” please enter a new bid above â‚¹ ' + Number(minNext).toLocaleString('en-IN') + '.', 'Bid Reset', { timeOut: 8000, progressBar: true });
         } else {
-            // Not yet locked — re-validate whatever is typed right now
-            var raw = $('#bid-amount').val().replace(/[₹,\s]/g, '');
+            // Not yet locked â€” re-validate whatever is typed right now
+            var raw = $('#bid-amount').val().replace(/[â‚¹,\s]/g, '');
             var typed = parseFloat(raw);
             if (!isNaN(typed) && typed > 0) {
                 var err = validateBidAmount(typed);
@@ -576,11 +581,11 @@ $(function () {
                     $('#bid-amount').removeClass('is-invalid');
                 }
             }
-            toastr.info('A new bid has been placed.<br><small>New minimum: ₹ ' + Number(minNext).toLocaleString('en-IN') + '</small>', 'New Bid', { timeOut: 6000, progressBar: true, allowHtml: true });
+            toastr.info('A new bid has been placed.<br><small>New minimum: â‚¹ ' + Number(minNext).toLocaleString('en-IN') + '</small>', 'New Bid', { timeOut: 6000, progressBar: true, allowHtml: true });
         }
     });
 
-    // ── Place Bid ──
+    // â”€â”€ Place Bid â”€â”€
     $('#btn-place-bid').on('click', function () {
         var distributions = [];
         $('.npv-amount-input').each(function () {

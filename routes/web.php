@@ -76,6 +76,10 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:view auctions')
         ->name('auctions.download-report');
 
+    Route::get('auctions/{auction}/bids-datatable', [AuctionController::class, 'bidsDatatable'])
+        ->middleware('permission:view auctions')
+        ->name('auctions.bids-datatable');
+
     Route::resource('users', UserController::class)
         ->middleware([
             'index'   => 'permission:view users',

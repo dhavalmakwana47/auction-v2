@@ -3,6 +3,7 @@
 
 @section('header-script')
 <link rel="stylesheet" href="{{ asset('app/ra/dashboard.css') }}">
+<link rel="stylesheet" href="{{ asset('plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
 <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 <style>
     /* ── Control Panel Styles ── */
@@ -237,7 +238,7 @@
                 </div>
             </div>
             <div class="table-responsive">
-                <table class="cp-table">
+                <table id="bids-table" class="table table-hover w-100" style="font-size:13px;">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -247,27 +248,6 @@
                             <th>Remarks</th>
                         </tr>
                     </thead>
-                    <tbody id="cp-bid-tbody">
-                        @forelse($auction->bids->sortByDesc('created_at') as $i => $bid)
-                        @php $isValid = $bid->status === 'confirmed'; @endphp
-                        <tr>
-                            <td class="bid-row-num">{{ $i + 1 }}</td>
-                            <td style="white-space:nowrap;">{{ $bid->created_at->format('d M Y, h:i A') }}</td>
-                            <td>₹ {{ number_format($bid->bid_amount) }}</td>
-                            <td>₹ {{ number_format($bid->total_npv, 2) }}</td>
-                            <td class="{{ $isValid ? 'text-valid' : 'text-invalid' }}">
-                                <i class="fas fa-{{ $isValid ? 'check-circle' : 'times-circle' }} mr-1"></i>
-                                {{ $isValid ? 'Valid Bid' : 'Invalid Bid' }}
-                            </td>
-                        </tr>
-                        @empty
-                        <tr id="cp-no-bids-row">
-                            <td colspan="6" class="text-center text-muted py-3">
-                                <i class="fas fa-gavel fa-2x d-block mb-2 text-muted"></i> No bids placed yet.
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
                 </table>
             </div>
         </div>
@@ -405,6 +385,8 @@
 @endsection
 
 @section('footer-script')
+<script src="{{ asset('plugins/datatables/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
 <script>
 $(function () {
     function updateTime() {
@@ -413,6 +395,22 @@ $(function () {
     }
     updateTime();
     setInterval(updateTime, 1000);
+
+    // ── Bids DataTable ──
+    var bidsTable = $('#bids-table').DataTable({
+        processing: true,
+        serverSide: true,
+        order: [[0, 'asc']],
+        ajax: '{{ route('auctions.bids-datatable', $auction) }}',
+        columns: [
+            { data: 'DT_RowIndex', orderable: false, searchable: false, width: '50px' },
+            { data: 'date_time',       orderable: false },
+            { data: 'bid_amount_fmt',  orderable: false },
+            { data: 'total_npv_fmt',   orderable: false },
+            { data: 'remark_html',     orderable: false },
+        ],
+        language: { emptyTable: '<i class="fas fa-gavel mr-1"></i> No bids placed yet.' },
+    });
 
     // ── Pusher: live bid updates ──
     @if($auction->status === 'in_progress')
@@ -431,21 +429,8 @@ $(function () {
         $('#cp-current-npv').html('&#8377; ' + totalNpv.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
         $('#cp-current-npv-sub').text('(From highest valid bid)');
 
-        // Prepend new row to timeline table
-        $('#cp-no-bids-row').remove();
-        $('#cp-bid-tbody tr').each(function () {
-            var $num = $(this).find('.bid-row-num');
-            $num.text(parseInt($num.text()) + 1);
-        });
-        var newRow = '<tr style="background:#f0fff8;">' +
-            '<td class="bid-row-num">1</td>' +
-            '<td style="white-space:nowrap;">' + data.placed_at + '</td>' +
-            '<td>&#8377; ' + parseFloat(data.bid_amount).toLocaleString('en-IN') + '</td>' +
-            '<td>&#8377; ' + totalNpv.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>' +
-            '<td class="text-valid"><i class="fas fa-check-circle mr-1"></i> Valid Bid</td>' +
-            '</tr>';
-        $('#cp-bid-tbody').prepend(newRow);
-        setTimeout(function () { $('#cp-bid-tbody tr:first').css('background', ''); }, 2000);
+        // Reload DataTable
+        bidsTable.ajax.reload(null, false);
 
         toastr.info('New bid received. Dashboard updated.', 'Live Update', { timeOut: 4000, progressBar: true });
     });

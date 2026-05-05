@@ -2,29 +2,30 @@
 
 namespace App\Mail;
 
-use App\Models\AuctionBid;
+use App\Models\Auction;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class BidConfirmationMail extends Mailable
+class RaInvitationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public AuctionBid $bid, public int $bidIndex, public string $remark) {}
+    public function __construct(public Auction $auction, public User $ra) {}
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: $this->bid->auction->corporate_debtor_name . ' - CHALLENGE BID SUBMITTED',
+            subject: 'Mapping of Resolution Applicant (RA) for Corporate Debtor – Challenge Mechanism',
         );
     }
 
     public function content(): Content
     {
-        return new Content(view: 'emails.bid-confirmation', with: ['bidIndex' => $this->bidIndex, 'remark' => $this->remark]);
+        return new Content(view: 'emails.ra-invitation');
     }
 
     public function attachments(): array

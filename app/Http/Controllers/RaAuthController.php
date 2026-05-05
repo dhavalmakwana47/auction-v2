@@ -49,7 +49,12 @@ class RaAuthController extends Controller
             $auction->bids()->where('status', 'confirmed')->max('bid_amount') ?? 0
         );
 
-        return view('app.ra.portal', compact('auction', 'highestBid'));
+        $currentNpv = $auction->bids()
+            ->where('status', 'confirmed')
+            ->orderByDesc('bid_amount')
+            ->value('total_npv') ?? 0;
+
+        return view('app.ra.portal', compact('auction', 'highestBid', 'currentNpv'));
     }
 
     public function showPolicy(\App\Models\Auction $auction)
@@ -88,8 +93,8 @@ class RaAuthController extends Controller
 
         return DataTables::of($bids)
             ->addIndexColumn()
-            ->addColumn('bid_amount', fn($b) => '₹ ' . number_format($b->bid_amount))
-            ->addColumn('total_npv',  fn($b) => '₹ ' . number_format($b->total_npv, 2))
+            ->addColumn('bid_amount', fn($b) => 'â‚¹ ' . number_format($b->bid_amount))
+            ->addColumn('total_npv',  fn($b) => 'â‚¹ ' . number_format($b->total_npv, 2))
             ->addColumn('created_at', fn($b) => $b->created_at->format('d M Y, h:i A'))
             ->rawColumns([])
             ->make(true);
@@ -101,12 +106,17 @@ class RaAuthController extends Controller
 
         $bids = $auction->bids()
             ->where('user_id', Auth::id())
-            ->orderByDesc('created_at');
+            ->orderBy('created_at')
+            ->get();
 
         return DataTables::of($bids)
             ->addIndexColumn()
-            ->addColumn('bid_amount', fn($b) => '₹ ' . number_format($b->bid_amount))
-            ->addColumn('total_npv',  fn($b) => '₹ ' . number_format($b->total_npv, 2))
+            ->addColumn('bid_number', function ($b) use (&$bids) {
+                static $i = 0;
+                return '#' . (++$i);
+            })
+            ->addColumn('bid_amount', fn($b) => 'â‚¹ ' . number_format($b->bid_amount))
+            ->addColumn('total_npv',  fn($b) => 'â‚¹ ' . number_format($b->total_npv, 2))
             ->addColumn('status', fn($b) => $b->status === 'confirmed'
                 ? '<span class="badge badge-success">Valid</span>'
                 : '<span class="badge badge-danger">Invalid</span>')
@@ -140,21 +150,21 @@ class RaAuthController extends Controller
         // Validate based on increment_amount_type and increment_type
         if ($auction->increment_amount_type === 'mandatory') {
             if ($bidAmount <= $highestBid) {
-                return response()->json(['message' => 'Bid amount must be greater than current base value (₹' . number_format($highestBid) . ').'], 422);
+                return response()->json(['message' => 'Bid amount must be greater than current base value (â‚¹' . number_format($highestBid) . ').'], 422);
             }
             $incrementAmount = (float) str_replace(',', '', $auction->increment_amount);
             if ($auction->increment_type === 'fixed') {
                 $minBid = $highestBid + $incrementAmount;
                 if ($bidAmount < $minBid) {
-                    return response()->json(['message' => 'Bid amount must be at least ₹' . number_format($minBid) . ' (Current Base + Increment).'], 422);
+                    return response()->json(['message' => 'Bid amount must be at least â‚¹' . number_format($minBid) . ' (Current Base + Increment).'], 422);
                 }
             } else {
                 if ($incrementAmount > 0 && fmod($bidAmount, $incrementAmount) > 0.001) {
-                    return response()->json(['message' => 'Bid amount must be a multiple of ₹' . number_format($incrementAmount) . '.'], 422);
+                    return response()->json(['message' => 'Bid amount must be a multiple of â‚¹' . number_format($incrementAmount) . '.'], 422);
                 }
             }
         }
-        // Recommend: no base value or increment enforcement — any positive amount is accepted
+        // Recommend: no base value or increment enforcement â€” any positive amount is accepted
 
         // Validate total distributed == bid amount
         $totalDistributed = collect($distributions)->sum(fn($d) => (float) $d['amount']);
@@ -169,6 +179,22 @@ class RaAuthController extends Controller
             $totalNpv += (float) $d['amount'] * (float) $config->percentage_value;
         }
 
+        // Compute remark before creating bid
+        $prevHighest  = $auction->bids()->where('status', 'confirmed')->max('bid_amount') ?? 0;
+        $basePrice    = (float) str_replace(',', '', $auction->base_price);
+        $incrementAmt = (float) str_replace(',', '', $auction->increment_amount);
+        $runningBase  = max($basePrice, (float) $prevHighest);
+        $minBid       = $runningBase + $incrementAmt;
+
+        if ($bidAmount <= $runningBase) {
+            $remark = 'BID AMOUNT Less than Base Value';
+        } elseif ($auction->increment_amount_type === 'mandatory' && $bidAmount < $minBid) {
+            $remark = 'BID AMOUNT does not comply with the requirement of Minimum Incremental Bid Value';
+        } else {
+            $existingCount = $auction->bids()->count();
+            $remark = $existingCount === 0 ? 'INITIAL BASE VALUE' : '-';
+        }
+
         $bid = AuctionBid::create([
             'auction_id'        => $auction->id,
             'user_id'           => Auth::id(),
@@ -177,6 +203,7 @@ class RaAuthController extends Controller
             'total_npv'         => $totalNpv,
             'status'            => 'confirmed',
             'ip_address'        => $request->ip(),
+            'remark'            => $remark,
         ]);
 
         foreach ($distributions as $d) {
@@ -192,11 +219,10 @@ class RaAuthController extends Controller
 
         $bid->load(['user', 'auction.createdBy', 'auction.npvCategories', 'auction.npvpConfigurations', 'distributions.npvCategory', 'distributions.npvpConfiguration']);
 
-        broadcast(new BidPlaced($bid))->toOthers();
-
+        $bidIndex = $bid->auction->bids()->count();
         \Illuminate\Support\Facades\Mail::to($bid->user->email)
             ->cc(optional($bid->auction->createdBy)->email)
-            ->send(new BidConfirmationMail($bid));
+            ->send(new BidConfirmationMail($bid, $bidIndex, $remark));
 
         return response()->json(['message' => 'Bid placed successfully!', 'bid_id' => $bid->id]);
     }

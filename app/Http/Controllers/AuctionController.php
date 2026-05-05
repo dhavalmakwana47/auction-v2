@@ -7,6 +7,7 @@ use App\Services\AuctionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Yajra\DataTables\Facades\DataTables;
 
 class AuctionController extends Controller
 {
@@ -39,7 +40,8 @@ class AuctionController extends Controller
     {
         $participants   = $this->auctionService->getParticipants();
         $npvCategories  = $this->auctionService->getNpvCategories();
-        return view('app.auctions.form', compact('participants', 'npvCategories'));
+        $rpUsers        = $this->auctionService->getRpUsers();
+        return view('app.auctions.form', compact('participants', 'npvCategories', 'rpUsers'));
     }
 
     public function store(Request $request)
@@ -72,6 +74,52 @@ class AuctionController extends Controller
             'started_at'        => now(),
         ]);
 
+        $auction->load(['npvCategories', 'npvpConfigurations']);
+
+        $basePrice   = (float) $request->base_price;
+        $rpUserId    = $auction->created_by;
+        $categories  = $auction->npvCategories;
+        $configs     = $auction->npvpConfigurations;
+
+        if ($rpUserId && $categories->count() > 0 && $configs->count() > 0) {
+            // Distribute base price equally across categories, all into first npvp config
+            $firstConfig   = $configs->first();
+            $categoryCount = $categories->count();
+            $amtPerCat     = round($basePrice / $categoryCount, 2);
+            // Adjust last category to avoid rounding gap
+            $totalNpv      = 0;
+            $distributions = [];
+
+            foreach ($categories as $i => $cat) {
+                $amt = ($i === $categoryCount - 1)
+                    ? round($basePrice - ($amtPerCat * ($categoryCount - 1)), 2)
+                    : $amtPerCat;
+                $npvVal         = $amt * (float) $firstConfig->percentage_value;
+                $totalNpv      += $npvVal;
+                $distributions[] = [
+                    'npv_category_id'       => $cat->id,
+                    'npvp_configuration_id' => $firstConfig->id,
+                    'amount'                => $amt,
+                    'npv_value'             => $npvVal,
+                ];
+            }
+
+            $bid = \App\Models\AuctionBid::create([
+                'auction_id'        => $auction->id,
+                'user_id'           => $rpUserId,
+                'bid_amount'        => $basePrice,
+                'total_distributed' => $basePrice,
+                'total_npv'         => $totalNpv,
+                'status'            => 'confirmed',
+                'ip_address'        => $request->ip(),
+                'remark'            => 'INITIAL BASE VALUE',
+            ]);
+
+            foreach ($distributions as $d) {
+                \App\Models\BidDistribution::create(array_merge(['auction_bid_id' => $bid->id], $d));
+            }
+        }
+
         return response()->json(['message' => 'Challenge round started successfully.']);
     }
 
@@ -99,6 +147,25 @@ class AuctionController extends Controller
         return response()->json(['message' => 'Challenge process ended. Auction marked as completed.']);
     }
 
+    public function bidsDatatable(Auction $auction)
+    {
+        $bids = $auction->bids()->with('user')->orderBy('created_at', 'desc');
+
+        return DataTables::eloquent($bids)
+            ->addIndexColumn()
+            ->addColumn('date_time', fn($b) => $b->created_at->format('d M Y, h:i A'))
+            ->addColumn('bid_amount_fmt', fn($b) => '₹ ' . number_format($b->bid_amount))
+            ->addColumn('total_npv_fmt', fn($b) => '₹ ' . number_format($b->total_npv, 2))
+            ->addColumn('remark_html', fn($b) =>
+                '<span class="' . ($b->status === 'confirmed' ? 'text-valid' : 'text-invalid') . '">' .
+                '<i class="fas fa-' . ($b->status === 'confirmed' ? 'check-circle' : 'times-circle') . ' mr-1"></i>' .
+                e($b->remark ?: ($b->status === 'confirmed' ? 'Valid Bid' : 'Invalid Bid')) .
+                '</span>'
+            )
+            ->rawColumns(['remark_html'])
+            ->make(true);
+    }
+
     public function downloadReport(Auction $auction)
     {
         abort_if($auction->status !== 'completed', 403, 'Report is only available for completed auctions.');
@@ -113,6 +180,7 @@ class AuctionController extends Controller
 
         // Section B: best bid per participant
         $bestBids = [];
+        $bidIndexMap = $auction->bids->sortBy('id')->values()->mapWithKeys(fn($b, $i) => [$b->id => $i + 1]);
         foreach ($auction->participants as $p) {
             $best = $auction->bids
                 ->where('user_id', $p->user_id)
@@ -132,8 +200,9 @@ class AuctionController extends Controller
         $allBids = [];
         $runningBase = $basePriceNum;
         foreach ($auction->bids->sortBy('created_at') as $bid) {
-            $remark = '';
-            if ($bid->status !== 'confirmed') {
+            if ($bid->remark) {
+                $remark = $bid->remark;
+            } elseif ($bid->status !== 'confirmed') {
                 if ($bid->bid_amount <= $runningBase) {
                     $remark = 'BID AMOUNT Less than Base Value';
                 } elseif ($auction->increment_type === 'fixed' && $bid->bid_amount < $runningBase + $incrementNum) {
@@ -143,12 +212,14 @@ class AuctionController extends Controller
                 }
             } else {
                 $remark = count($allBids) === 0 ? 'INITIAL BASE VALUE' : '—';
+            }
+            if ($bid->status === 'confirmed') {
                 $runningBase = $bid->bid_amount;
             }
             $allBids[] = ['bid' => $bid, 'base' => $runningBase, 'remark' => $remark];
         }
 
-        $html = view('reports.challenge-report', compact('auction', 'bestBids', 'allBids'))->render();
+        $html = view('reports.challenge-report', compact('auction', 'bestBids', 'allBids', 'bidIndexMap'))->render();
 
         return response($html, 200, [
             'Content-Type'        => 'text/html',
@@ -163,7 +234,8 @@ class AuctionController extends Controller
         $auction->load('participants', 'npvpConfigurations', 'npvCategories');
         $participants  = $this->auctionService->getParticipants();
         $npvCategories = $this->auctionService->getNpvCategories();
-        return view('app.auctions.form', compact('auction', 'participants', 'npvCategories'));
+        $rpUsers       = $this->auctionService->getRpUsers();
+        return view('app.auctions.form', compact('auction', 'participants', 'npvCategories', 'rpUsers'));
     }
 
     public function update(Request $request, Auction $auction)
@@ -198,6 +270,7 @@ class AuctionController extends Controller
             'initial_npv_value'       => 'required|numeric|min:0.01',
             'participants'            => 'nullable|array',
             'participants.*'          => 'exists:users,id',
+            'rp_user_id'              => 'nullable|exists:users,id',
             'npv_categories'          => 'required|array|min:1',
             'npv_categories.*'        => 'exists:npv_categories,id',
             'npvp'                    => 'nullable|array',
