@@ -14,7 +14,10 @@ class AuctionService
 {
     public function datatable()
     {
-        $auctions = Auction::where('created_by', Auth::id());
+        $auctions = Auction::query();
+        if (!Auth::user()?->hasRole('admin')) {
+            $auctions->where('created_by', Auth::id());
+        }
 
         return DataTables::eloquent($auctions)
             ->addIndexColumn()
@@ -37,7 +40,10 @@ class AuctionService
 
     public function dashboardDatatable()
     {
-        $auctions = Auction::where('created_by', Auth::id());
+        $auctions = Auction::query();
+        if (!Auth::user()?->hasRole('admin')) {
+            $auctions->where('created_by', Auth::id());
+        }
 
         $status = request('status', 'pending');
         $auctions->where('status', $status);

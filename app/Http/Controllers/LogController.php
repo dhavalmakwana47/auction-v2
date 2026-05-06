@@ -143,7 +143,6 @@ class LogController extends Controller
         if (!$userId) {
             return false;
         }
-dd($userId);
         return User::whereKey($userId)
             ->whereHas('roles', fn($query) => $query->where('name', 'Resolution Professional (RP)'))
             ->exists();

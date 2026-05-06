@@ -66,8 +66,8 @@
         @foreach($bestBids as $i => $row)
         <tr>
             <td class="text-center">{{ $i + 1 }}</td>
-            <td>{{ $row['user']->name ?? '&mdash;' }}</td>
-            <td class="text-center">{{ $row['best'] ? $bidIndexMap[$row['best']->id] : '&mdash;' }}</td>
+            <td>{{ $row['user']->name ?? '-' }}</td>
+            <td class="text-center">{{ $row['best'] ? $bidIndexMap[$row['best']->id] : '-' }}</td>
             <td class="text-right">
                 @if($row['best'])
                     {{ number_format($row['best']->bid_amount, 2) }}
@@ -75,7 +75,7 @@
                     <span class="no-bid">NO BID</span>
                 @endif
             </td>
-            <td class="text-right">{{ $row['best'] ? number_format($row['best']->total_npv, 2) : '&mdash;' }}</td>
+            <td class="text-right">{{ $row['best'] ? number_format($row['best']->total_npv, 2) : '-' }}</td>
         </tr>
         @endforeach
     </tbody>

@@ -21,9 +21,11 @@ class AuctionController extends Controller
 
     public function dashboard()
     {
-        $auctions = Auction::with('npvCategories')
-            ->where('created_by', Auth::id())
-            ->get();
+        $auctions = Auction::with('npvCategories');
+        if (!Auth::user()?->hasRole('admin')) {
+            $auctions->where('created_by', Auth::id());
+        }
+        $auctions = $auctions->get();
         return view('app.index', compact('auctions'));
     }
 
@@ -191,6 +193,7 @@ class AuctionController extends Controller
                 ->where('status', 'confirmed')
                 ->sortByDesc('bid_amount')
                 ->first();
+
             $bestBids[] = [
                 'user'    => $p->user,
                 'best'    => $best,
