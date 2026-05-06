@@ -9,8 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('auction_bids', function (Blueprint $table) {
-            if (!Schema::hasColumn('auction_bids', 'remark')) {
-                $table->text('remark')->nullable()->after('ip_address');
+            if (!Schema::hasColumn('auction_bids', 'revision_backup')) {
+                $table->longText('revision_backup')->nullable()->after('remark');
             }
         });
     }
@@ -18,7 +18,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('auction_bids', function (Blueprint $table) {
-            $table->dropColumn('remark');
+            if (Schema::hasColumn('auction_bids', 'revision_backup')) {
+                $table->dropColumn('revision_backup');
+            }
         });
     }
 };
+

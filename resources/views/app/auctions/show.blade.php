@@ -241,11 +241,13 @@
                 <table id="bids-table" class="table table-hover w-100" style="font-size:13px;">
                     <thead>
                         <tr>
-                            <th>#</th>
+                            <th>Bid #</th>
                             <th>Date / Time</th>
                             <th>Resolution Amount</th>
                             <th>NPV of RA Amount</th>
+                            <th>Status</th>
                             <th>Remarks</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                 </table>
@@ -403,11 +405,13 @@ $(function () {
         order: [[0, 'asc']],
         ajax: '{{ route('auctions.bids-datatable', $auction) }}',
         columns: [
-            { data: 'DT_RowIndex', orderable: false, searchable: false, width: '50px' },
+            { data: 'bid_count', orderable: false, searchable: false, width: '70px' },
             { data: 'date_time',       orderable: false },
             { data: 'bid_amount_fmt',  orderable: false },
             { data: 'total_npv_fmt',   orderable: false },
+            { data: 'status_html',     orderable: false, searchable: false },
             { data: 'remark_html',     orderable: false },
+            { data: 'action_html',     orderable: false, searchable: false },
         ],
         language: { emptyTable: '<i class="fas fa-gavel mr-1"></i> No bids placed yet.' },
     });
@@ -419,22 +423,81 @@ $(function () {
         encrypted: true
     });
     pusher.subscribe('auction.{{ $auction->id }}').bind('bid.placed', function (data) {
-        var highestBid = parseFloat(data.highest_bid);
-        var totalNpv   = parseFloat(data.total_npv);
-        // Summary cards
         $('#cp-total-bids').text(data.total_bids);
         $('#cp-valid-bids').text(data.valid_bids);
-        $('#cp-current-base').html('&#8377; ' + highestBid.toLocaleString('en-IN'));
-        $('#cp-current-base-sub').text('(From highest valid bid)');
-        $('#cp-current-npv').html('&#8377; ' + totalNpv.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-        $('#cp-current-npv-sub').text('(From highest valid bid)');
+
+        if ((data.bid_status || '') === 'confirmed') {
+            var highestBid = parseFloat(data.highest_bid);
+            var totalNpv   = parseFloat(data.total_npv);
+            $('#cp-current-base').html('&#8377; ' + highestBid.toLocaleString('en-IN'));
+            $('#cp-current-base-sub').text('(From highest valid bid)');
+            $('#cp-current-npv').html('&#8377; ' + totalNpv.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+            $('#cp-current-npv-sub').text('(From highest valid bid)');
+        }
 
         // Reload DataTable
         bidsTable.ajax.reload(null, false);
 
-        toastr.info('New bid received. Dashboard updated.', 'Live Update', { timeOut: 4000, progressBar: true });
+        var msg = (data.bid_status || '') === 'confirmed'
+            ? 'New bid received. Dashboard updated.'
+            : 'Revision submitted. Dashboard updated.';
+        toastr.info(msg, 'Live Update', { timeOut: 4000, progressBar: true });
     });
     @endif
+
+    $(document).on('click', '.btn-approve-revision', function () {
+        var url = $(this).data('url');
+        if (!url) return;
+        Swal.fire({
+            title: 'Approve revision?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            confirmButtonText: 'Approve',
+        }).then(function (result) {
+            if (!result.isConfirmed) return;
+            $.ajax({
+                url: url,
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                success: function (res) {
+                    toastr.success(res.message || 'Revision approved.');
+                    bidsTable.ajax.reload(null, false);
+                },
+                error: function (xhr) {
+                    var msg = xhr.responseJSON ? xhr.responseJSON.message : 'Could not approve revision.';
+                    toastr.error(msg);
+                }
+            });
+        });
+    });
+
+    $(document).on('click', '.btn-reject-revision', function () {
+        var url = $(this).data('url');
+        if (!url) return;
+        Swal.fire({
+            title: 'Reject revision?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            confirmButtonText: 'Reject',
+        }).then(function (result) {
+            if (!result.isConfirmed) return;
+            $.ajax({
+                url: url,
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                success: function (res) {
+                    toastr.success(res.message || 'Revision rejected.');
+                    bidsTable.ajax.reload(null, false);
+                },
+                error: function (xhr) {
+                    var msg = xhr.responseJSON ? xhr.responseJSON.message : 'Could not reject revision.';
+                    toastr.error(msg);
+                }
+            });
+        });
+    });
 
     $('#btn-start-challenge').on('click', function () {
         $('#startChallengeModal').modal('show');

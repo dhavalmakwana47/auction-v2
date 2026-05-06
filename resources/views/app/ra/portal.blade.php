@@ -259,6 +259,7 @@
                             <th style="color:#0d6efd;">NPV Amount</th>
                             <th style="color:#0d6efd;">Status</th>
                             <th style="color:#0d6efd;">Date / Time</th>
+                            <th style="color:#0d6efd;">Action</th>
                         </tr>
                     </thead>
                 </table>
@@ -281,8 +282,10 @@ $(function () {
     var incrementType      = '{{ $auction->increment_type }}';
     var incrementAmountType = '{{ strtolower($auction->increment_amount_type) }}';
     var bidAmount = 0;
+    var currentUserId = {{ (int) auth()->id() }};
     var csrfToken = '{{ csrf_token() }}';
     var bidUrl    = '{{ route('ra.auction.bid', $auction) }}';
+    var reviseSourceBidId = null;
 
     function formatINR(num) {
         return '\u20b9 ' + Number(num).toLocaleString('en-IN');
@@ -389,7 +392,8 @@ $(function () {
                   render: function (data) {
                       return '<span style="color:#888; font-size:12px;"><i class="fas fa-clock mr-1"></i>' + data + '</span>';
                   }
-                }
+                },
+                { data: 'action', orderable: false, searchable: false }
             ],
             order: [[4, 'desc']],
             pageLength: 10,
@@ -455,6 +459,11 @@ $(function () {
         $('#btn-place-bid').prop('disabled', false);
     }
 
+    function setPlaceBidLabel() {
+        var label = reviseSourceBidId ? 'Submit Revision' : 'Place Bid';
+        $('#btn-place-bid').html('<i class="fas fa-gavel mr-2"></i> ' + label);
+    }
+
     $('#btn-reset-bid').on('click', function () {
         $('.npv-amount-input').val('');
         $('.npv-amount-input').prop('disabled', false);
@@ -468,6 +477,8 @@ $(function () {
         $('.col-npv-total').text('0.00');
         $('#btn-place-bid').prop('disabled', true);
         $('#distribution-error').hide();
+        reviseSourceBidId = null;
+        setPlaceBidLabel();
         syncBidFromGrandTotal(0);
     });
 
@@ -504,6 +515,34 @@ $(function () {
 
     $(document).on('input', '.npv-amount-input', recalculate);
 
+    $(document).on('click', '.btn-request-revision', function () {
+        var url = $(this).data('url');
+        if (!url) return;
+
+        $.ajax({
+            url: url,
+            method: 'GET',
+            success: function (res) {
+                $('.npv-amount-input').prop('disabled', false);
+                $('#distribution-error').hide();
+                $('.npv-amount-input').val('');
+                (res.distributions || []).forEach(function (d) {
+                    var selector = '.npv-amount-input[data-category-id="' + d.npv_category_id + '"][data-config-id="' + d.npvp_config_id + '"]';
+                    $(selector).val(d.amount);
+                });
+                reviseSourceBidId = res.bid_id;
+                setPlaceBidLabel();
+                recalculate();
+                $('#myBidsModal').modal('hide');
+                toastr.info('Bid #' + res.bid_id + ' loaded. Edit values and submit revision for approval.');
+            },
+            error: function (xhr) {
+                var msg = xhr.responseJSON ? xhr.responseJSON.message : 'Could not load bid for revision.';
+                toastr.error(msg);
+            }
+        });
+    });
+
     // â”€â”€ Pusher: real-time bid updates â”€â”€
     var pusher  = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', {
         cluster: '{{ env('PUSHER_APP_CLUSTER', 'mt1') }}',
@@ -512,6 +551,37 @@ $(function () {
     var channel = pusher.subscribe('auction.{{ $auction->id }}');
 
     channel.bind('bid.placed', function (data) {
+        var bidStatus = (data.bid_status || '').toLowerCase();
+        var eventUserId = parseInt(data.user_id, 10);
+        var isMyBidEvent = eventUserId === currentUserId;
+
+        if (bidStatus !== 'confirmed') {
+            if (topBidsDT) topBidsDT.ajax.reload(null, false);
+            if (myBidsDT) myBidsDT.ajax.reload(null, false);
+
+            if (bidStatus === 'revision_rejected') {
+                if (isMyBidEvent) {
+                    // Let RA re-edit immediately after creator rejection.
+                    reviseSourceBidId = data.bid_id || reviseSourceBidId;
+                    $('.npv-amount-input').prop('disabled', false);
+                    setPlaceBidLabel();
+                    recalculate();
+                }
+                var rejectMsg = isMyBidEvent
+                    ? 'Your revision was rejected by the creator.'
+                    : 'A revision was rejected by the creator.';
+                toastr.warning(rejectMsg, 'Revision Update', { timeOut: 6000, progressBar: true });
+            } else if (bidStatus === 'revision_pending') {
+                var pendingMsg = isMyBidEvent
+                    ? 'Your revision was submitted for approval.'
+                    : 'A revision was submitted for approval.';
+                toastr.info(pendingMsg, 'Revision Update', { timeOut: 5000, progressBar: true });
+            } else {
+                toastr.info('Bid update received.', 'Live Update', { timeOut: 5000, progressBar: true });
+            }
+            return;
+        }
+
         baseValue = parseFloat(data.highest_bid);
         var minNext = parseFloat(data.minimum_next);
 
@@ -573,14 +643,17 @@ $(function () {
         });
 
         function submitBid() {
+            var confirmText = reviseSourceBidId ? 'Yes, Submit Revision!' : 'Yes, Place Bid!';
             Swal.fire({
-                title: 'Confirm Bid',
-                html: 'You are placing a bid of <strong>' + formatINR(bidAmount) + '</strong>.<br>This action cannot be undone.',
+                title: reviseSourceBidId ? 'Confirm Revision' : 'Confirm Bid',
+                html: reviseSourceBidId
+                    ? ('You are submitting a revised bid of <strong>' + formatINR(bidAmount) + '</strong> for approval.')
+                    : ('You are placing a bid of <strong>' + formatINR(bidAmount) + '</strong>.<br>This action cannot be undone.'),
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#0d6efd',
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, Place Bid!',
+                confirmButtonText: confirmText,
                 cancelButtonText: 'Cancel'
             }).then(function (result) {
                 if (!result.isConfirmed) return;
@@ -590,13 +663,15 @@ $(function () {
                     method: 'POST',
                     headers: { 'X-CSRF-TOKEN': csrfToken },
                     contentType: 'application/json',
-                    data: JSON.stringify({ bid_amount: bidAmount, distributions: distributions }),
+                    data: JSON.stringify({ bid_amount: bidAmount, distributions: distributions, revise_bid_id: reviseSourceBidId }),
                     beforeSend: function () {
                         $('#bid-loader-overlay').addClass('active');
                     },
                     success: function (res) {
                         $('#bid-loader-overlay').removeClass('active');
                         toastr.success(res.message);
+                        reviseSourceBidId = null;
+                        setPlaceBidLabel();
                         $('#btn-place-bid').prop('disabled', true);
                         $('.npv-amount-input').prop('disabled', true);
                     },
@@ -633,6 +708,7 @@ $(function () {
             submitBid();
         }
     });
+    setPlaceBidLabel();
 });
 </script>
 @endsection

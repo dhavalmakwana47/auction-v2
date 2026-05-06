@@ -159,17 +159,98 @@ class AuctionController extends Controller
 
         return DataTables::eloquent($bids)
             ->addIndexColumn()
+            ->addColumn('bid_count', fn($b) => '#' . $b->id)
             ->addColumn('date_time', fn($b) => $b->created_at->format('d M Y, h:i A'))
             ->addColumn('bid_amount_fmt', fn($b) => '₹ ' . number_format($b->bid_amount))
             ->addColumn('total_npv_fmt', fn($b) => '₹ ' . number_format($b->total_npv, 2))
+            ->addColumn('status_html', function ($b) {
+                return match ($b->status) {
+                    'confirmed' => '<span class="badge badge-success">Valid</span>',
+                    'revision_pending' => '<span class="badge badge-warning">Revision Pending</span>',
+                    'revision_rejected' => '<span class="badge badge-danger">Revision Rejected</span>',
+                    default => '<span class="badge badge-secondary">' . e(ucfirst(str_replace('_', ' ', $b->status))) . '</span>',
+                };
+            })
             ->addColumn('remark_html', fn($b) =>
                 '<span class="' . ($b->status === 'confirmed' ? 'text-valid' : 'text-invalid') . '">' .
                 '<i class="fas fa-' . ($b->status === 'confirmed' ? 'check-circle' : 'times-circle') . ' mr-1"></i>' .
                 e($b->remark ?: ($b->status === 'confirmed' ? 'Valid Bid' : 'Invalid Bid')) .
                 '</span>'
             )
-            ->rawColumns(['remark_html'])
+            ->addColumn('action_html', function ($b) use ($auction) {
+                if ($b->status !== 'revision_pending') {
+                    return '<span class="text-muted">—</span>';
+                }
+                $approveUrl = route('auctions.bids.approve-revision', [$auction, $b]);
+                $rejectUrl  = route('auctions.bids.reject-revision', [$auction, $b]);
+                return '<button class="btn btn-success btn-sm btn-approve-revision mr-1" data-url="' . e($approveUrl) . '"><i class="fas fa-check mr-1"></i>Approve</button>'
+                    . '<button class="btn btn-danger btn-sm btn-reject-revision" data-url="' . e($rejectUrl) . '"><i class="fas fa-times mr-1"></i>Reject</button>';
+            })
+            ->rawColumns(['status_html', 'remark_html', 'action_html'])
             ->make(true);
+    }
+
+    public function approveRevision(Request $request, Auction $auction, \App\Models\AuctionBid $bid)
+    {
+        abort_if(!Auth::user()?->hasRole('admin') && (int) $auction->created_by !== (int) Auth::id(), 403, 'Only auction creator can approve revisions.');
+        abort_if($bid->auction_id !== $auction->id, 404);
+        abort_if($bid->status !== 'revision_pending', 422, 'Only pending revisions can be approved.');
+
+        $bid->update([
+            'status' => 'confirmed',
+            'remark' => 'REVISION APPROVED BY CREATOR',
+            'revision_backup' => null,
+        ]);
+
+        $bid->load(['user', 'auction.createdBy', 'auction.npvCategories', 'auction.npvpConfigurations', 'distributions.npvCategory', 'distributions.npvpConfiguration']);
+        event(new BidPlaced($bid));
+
+        return response()->json(['message' => 'Revision approved successfully.']);
+    }
+
+    public function rejectRevision(Request $request, Auction $auction, \App\Models\AuctionBid $bid)
+    {
+        abort_if(!Auth::user()?->hasRole('admin') && (int) $auction->created_by !== (int) Auth::id(), 403, 'Only auction creator can reject revisions.');
+        abort_if($bid->auction_id !== $auction->id, 404);
+        abort_if($bid->status !== 'revision_pending', 422, 'Only pending revisions can be rejected.');
+
+        $backup = null;
+        if (!empty($bid->revision_backup)) {
+            $backup = json_decode($bid->revision_backup, true);
+        }
+
+        if (is_array($backup) && !empty($backup['distributions'])) {
+            $bid->update([
+                'bid_amount'        => (float) ($backup['bid_amount'] ?? $bid->bid_amount),
+                'total_distributed' => (float) ($backup['total_distributed'] ?? $bid->total_distributed),
+                'total_npv'         => (float) ($backup['total_npv'] ?? $bid->total_npv),
+                'status'            => (string) ($backup['status'] ?? 'confirmed'),
+                'remark'            => (string) ($backup['remark'] ?? 'REVISION REJECTED BY CREATOR'),
+                'revision_backup'   => null,
+            ]);
+
+            $bid->distributions()->delete();
+            foreach ($backup['distributions'] as $d) {
+                \App\Models\BidDistribution::create([
+                    'auction_bid_id'        => $bid->id,
+                    'npv_category_id'       => $d['npv_category_id'],
+                    'npvp_configuration_id' => $d['npvp_configuration_id'],
+                    'amount'                => $d['amount'],
+                    'npv_value'             => $d['npv_value'],
+                ]);
+            }
+        } else {
+            $bid->update([
+                'status' => 'revision_rejected',
+                'remark' => 'REVISION REJECTED BY CREATOR',
+                'revision_backup' => null,
+            ]);
+        }
+
+        $bid->load(['user', 'auction']);
+        event(new BidPlaced($bid));
+
+        return response()->json(['message' => 'Revision rejected.']);
     }
 
     public function downloadReport(Auction $auction)

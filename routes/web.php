@@ -79,6 +79,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('auctions/{auction}/bids-datatable', [AuctionController::class, 'bidsDatatable'])
         ->middleware('permission:view auctions')
         ->name('auctions.bids-datatable');
+    Route::post('auctions/{auction}/bids/{bid}/approve-revision', [AuctionController::class, 'approveRevision'])
+        ->middleware('permission:edit auctions')
+        ->name('auctions.bids.approve-revision');
+    Route::post('auctions/{auction}/bids/{bid}/reject-revision', [AuctionController::class, 'rejectRevision'])
+        ->middleware('permission:edit auctions')
+        ->name('auctions.bids.reject-revision');
 
     Route::resource('users', UserController::class)
         ->middleware([
@@ -133,6 +139,7 @@ Route::prefix('ra')->name('ra.')->group(function () {
     Route::get('auction/{auction}/top-bids',   [RaAuthController::class, 'topBids'])->middleware(['auth', 'permission:view ra-dashboard'])->name('auction.top-bids');
     Route::get('auction/{auction}/my-bids',    [RaAuthController::class, 'myBids'])->middleware(['auth', 'permission:view ra-dashboard'])->name('auction.my-bids');
     Route::post('auction/{auction}/bid',       [RaAuthController::class, 'placeBid'])->middleware(['auth', 'permission:view ra-dashboard'])->name('auction.bid');
+    Route::get('auction/{auction}/bids/{bid}/revise-data', [RaAuthController::class, 'reviseBidData'])->middleware(['auth', 'permission:view ra-dashboard'])->name('auction.bid.revise-data');
 });
 
 require __DIR__.'/auth.php';

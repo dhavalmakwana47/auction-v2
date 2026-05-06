@@ -93,10 +93,10 @@ class RaAuthController extends Controller
 
         return DataTables::of($bids)
             ->addIndexColumn()
-            ->addColumn('bid_amount', fn($b) => 'â‚¹ ' . number_format($b->bid_amount))
-            ->addColumn('total_npv',  fn($b) => 'â‚¹ ' . number_format($b->total_npv, 2))
+            ->addColumn('bid_amount', fn($b) => '&#8377; ' . number_format($b->bid_amount))
+            ->addColumn('total_npv',  fn($b) => '&#8377; ' . number_format($b->total_npv, 2))
             ->addColumn('created_at', fn($b) => $b->created_at->format('d M Y, h:i A'))
-            ->rawColumns([])
+            ->rawColumns(['bid_amount', 'total_npv'])
             ->make(true);
     }
 
@@ -115,14 +115,46 @@ class RaAuthController extends Controller
                 static $i = 0;
                 return '#' . (++$i);
             })
-            ->addColumn('bid_amount', fn($b) => 'â‚¹ ' . number_format($b->bid_amount))
-            ->addColumn('total_npv',  fn($b) => 'â‚¹ ' . number_format($b->total_npv, 2))
-            ->addColumn('status', fn($b) => $b->status === 'confirmed'
-                ? '<span class="badge badge-success">Valid</span>'
-                : '<span class="badge badge-danger">Invalid</span>')
+            ->addColumn('bid_amount', fn($b) => '&#8377; ' . number_format($b->bid_amount))
+            ->addColumn('total_npv',  fn($b) => '&#8377; ' . number_format($b->total_npv, 2))
+            ->addColumn('status', function ($b) {
+                return match ($b->status) {
+                    'confirmed' => '<span class="badge badge-success">Valid</span>',
+                    'revision_pending' => '<span class="badge badge-warning">Revision Pending Approval</span>',
+                    'revision_rejected' => '<span class="badge badge-danger">Revision Rejected</span>',
+                    default => '<span class="badge badge-danger">Invalid</span>',
+                };
+            })
+            ->addColumn('action', function ($b) use ($auction) {
+                if (!in_array($b->status, ['confirmed', 'revision_rejected'], true)) {
+                    return '<span class="text-muted">—</span>';
+                }
+                $url = route('ra.auction.bid.revise-data', [$auction, $b]);
+                return '<button type="button" class="btn btn-sm btn-outline-primary btn-request-revision" data-url="' . e($url) . '" title="Load this bid in form for editing"><i class="fas fa-edit mr-1"></i>Revise</button>';
+            })
             ->addColumn('created_at', fn($b) => $b->created_at->format('d M Y, h:i A'))
-            ->rawColumns(['status'])
+            ->rawColumns(['bid_amount', 'total_npv', 'status', 'action'])
             ->make(true);
+    }
+
+    public function reviseBidData(Request $request, Auction $auction, AuctionBid $bid)
+    {
+        abort_unless($auction->participants()->where('user_id', Auth::id())->exists(), 403);
+        abort_if($auction->status !== 'in_progress', 403, 'Revision is allowed only while challenge is in progress.');
+        abort_if($bid->auction_id !== $auction->id || $bid->user_id !== Auth::id(), 403, 'You can revise only your own bids.');
+        abort_if($bid->status === 'revision_pending', 422, 'This bid is already pending approval.');
+
+        $bid->load('distributions');
+
+        return response()->json([
+            'bid_id' => $bid->id,
+            'bid_amount' => (float) $bid->bid_amount,
+            'distributions' => $bid->distributions->map(fn ($d) => [
+                'npv_category_id' => (int) $d->npv_category_id,
+                'npvp_config_id' => (int) $d->npvp_configuration_id,
+                'amount' => (float) $d->amount,
+            ])->values(),
+        ]);
     }
 
     public function placeBid(\Illuminate\Http\Request $request, Auction $auction)
@@ -137,10 +169,26 @@ class RaAuthController extends Controller
             'distributions.*.npv_category_id'    => 'required|exists:npv_categories,id',
             'distributions.*.npvp_config_id'     => 'required|exists:npvp_configurations,id',
             'distributions.*.amount'             => 'required|numeric|min:0',
+            'revise_bid_id'                      => 'nullable|integer|exists:auction_bids,id',
         ]);
 
         $bidAmount     = (float) $request->bid_amount;
         $distributions = $request->distributions;
+        $reviseBidId   = $request->input('revise_bid_id');
+
+        if ($reviseBidId) {
+            $sourceBid = AuctionBid::query()
+                ->where('id', $reviseBidId)
+                ->where('auction_id', $auction->id)
+                ->where('user_id', Auth::id())
+                ->first();
+            if (!$sourceBid) {
+                return response()->json(['message' => 'Selected bid for revision was not found.'], 422);
+            }
+            if ($sourceBid->status === 'revision_pending') {
+                return response()->json(['message' => 'Selected bid is already pending approval.'], 422);
+            }
+        }
 
         $highestBid = max(
             (float) str_replace(',', '', $auction->base_price),
@@ -193,6 +241,56 @@ class RaAuthController extends Controller
         } else {
             $existingCount = $auction->bids()->count();
             $remark = $existingCount === 0 ? 'INITIAL BASE VALUE' : '-';
+        }
+
+        if ($reviseBidId) {
+            $bid = AuctionBid::query()
+                ->where('id', $reviseBidId)
+                ->where('auction_id', $auction->id)
+                ->where('user_id', Auth::id())
+                ->firstOrFail();
+
+            $bid->loadMissing('distributions');
+            $backup = [
+                'bid_amount'        => (float) $bid->bid_amount,
+                'total_distributed' => (float) $bid->total_distributed,
+                'total_npv'         => (float) $bid->total_npv,
+                'status'            => (string) $bid->status,
+                'remark'            => $bid->remark,
+                'distributions'     => $bid->distributions->map(fn ($d) => [
+                    'npv_category_id'       => (int) $d->npv_category_id,
+                    'npvp_configuration_id' => (int) $d->npvp_configuration_id,
+                    'amount'                => (float) $d->amount,
+                    'npv_value'             => (float) $d->npv_value,
+                ])->values()->all(),
+            ];
+
+            $bid->update([
+                'bid_amount'        => $bidAmount,
+                'total_distributed' => $totalDistributed,
+                'total_npv'         => $totalNpv,
+                'status'            => 'revision_pending',
+                'ip_address'        => $request->ip(),
+                'remark'            => 'REVISION REQUESTED',
+                'revision_backup'   => json_encode($backup),
+            ]);
+
+            $bid->distributions()->delete();
+            foreach ($distributions as $d) {
+                $config = NpvpConfiguration::find($d['npvp_config_id']);
+                BidDistribution::create([
+                    'auction_bid_id'       => $bid->id,
+                    'npv_category_id'      => $d['npv_category_id'],
+                    'npvp_configuration_id'=> $d['npvp_config_id'],
+                    'amount'               => $d['amount'],
+                    'npv_value'            => (float) $d['amount'] * (float) $config->percentage_value,
+                ]);
+            }
+
+            $bid->load(['user', 'auction']);
+            event(new BidPlaced($bid));
+
+            return response()->json(['message' => 'Same bid updated and sent for creator approval.', 'bid_id' => $bid->id]);
         }
 
         $bid = AuctionBid::create([

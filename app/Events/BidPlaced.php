@@ -5,11 +5,11 @@ namespace App\Events;
 use App\Models\AuctionBid;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class BidPlaced implements ShouldBroadcast
+class BidPlaced implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -36,6 +36,8 @@ class BidPlaced implements ShouldBroadcast
 
         return [
             'bid_id'       => $this->bid->id,
+            'user_id'      => (int) $this->bid->user_id,
+            'bid_status'   => (string) $this->bid->status,
             'ra_name'      => $this->bid->user->name,
             'bid_amount'   => (float) $this->bid->bid_amount,
             'total_npv'    => (float) $this->bid->total_npv,
