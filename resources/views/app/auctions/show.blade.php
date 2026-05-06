@@ -8,7 +8,7 @@
 <style>
     /* ── Control Panel Styles ── */
     .cp-header {
-        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        background: linear-gradient(135deg, #0d6efd 0%, #38b6ff 100%);
         border-radius: 16px;
         padding: 24px 28px;
         margin-bottom: 24px;
@@ -26,7 +26,7 @@
     .cp-header .meta { color: rgba(255,255,255,0.75); font-size: 12px; display: flex; flex-wrap: wrap; gap: 16px; }
     .cp-header .meta span { display: flex; align-items: center; gap: 5px; }
     .badge-active {
-        background: #fff; color: #2f80ed;
+        background: #fff; color: #0d6efd;
         border-radius: 20px; padding: 6px 16px;
         font-size: 12px; font-weight: 700;
         display: inline-flex; align-items: center; gap: 6px;
@@ -34,7 +34,7 @@
     }
     .badge-active .dot {
         width: 8px; height: 8px; border-radius: 50%;
-        background: #2f80ed; animation: pulse 1.5s infinite;
+        background: #0d6efd; animation: pulse 1.5s infinite;
     }
     @keyframes pulse {
         0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
@@ -43,13 +43,13 @@
     /* Summary Cards */
     .summary-card {
         background: #fff; border-radius: 14px;
-        box-shadow: 0 4px 20px rgba(17,153,142,0.10);
+        box-shadow: 0 4px 20px rgba(13,110,253,0.10);
         padding: 20px 24px; height: 100%;
-        border-left: 4px solid #11998e;
+        border-left: 4px solid #0d6efd;
     }
     .summary-card .s-label {
         font-size: 11px; font-weight: 700; text-transform: uppercase;
-        letter-spacing: 1px; color: #11998e; margin-bottom: 8px;
+        letter-spacing: 1px; color: #0d6efd; margin-bottom: 8px;
     }
     .summary-card .s-value {
         font-size: 22px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px;
@@ -57,31 +57,31 @@
     .summary-card .s-sub { font-size: 12px; color: #999; }
     .summary-card .s-icon {
         width: 44px; height: 44px; border-radius: 12px;
-        background: linear-gradient(135deg, #11998e, #38ef7d);
+        background: linear-gradient(135deg, #0d6efd, #38b6ff);
         display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
 
     /* Section Cards */
     .cp-card {
         background: #fff; border-radius: 14px;
-        box-shadow: 0 4px 20px rgba(17,153,142,0.08);
+        box-shadow: 0 4px 20px rgba(13,110,253,0.08);
         overflow: hidden; margin-bottom: 24px;
     }
     .cp-card-header {
-        background: #f8fffe; border-bottom: 2px solid #e0f7f5;
+        background: #edf5ff; border-bottom: 2px solid #dbeafe;
         padding: 14px 20px; font-size: 13px; font-weight: 700;
-        color: #11998e; text-transform: uppercase; letter-spacing: 1px;
+        color: #0d6efd; text-transform: uppercase; letter-spacing: 1px;
         display: flex; align-items: center; gap: 8px;
     }
     .cp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
     .cp-table thead th {
-        background: linear-gradient(135deg, #11998e, #38ef7d);
+        background: linear-gradient(135deg, #0d6efd, #38b6ff);
         color: #fff; font-size: 12px; font-weight: 600;
         padding: 11px 16px; border: none; white-space: nowrap;
     }
     .cp-table tbody td { padding: 11px 16px; border-bottom: 1px solid #f0f0f0; color: #444; }
     .cp-table tbody tr:last-child td { border-bottom: none; }
-    .cp-table tbody tr:hover td { background: #f8fffe; }
+    .cp-table tbody tr:hover td { background: #edf5ff; }
 
     .badge-eligible {
         background: #eafaf1; color: #1e8449;
@@ -106,7 +106,7 @@
     /* Footer Buttons */
     .cp-footer {
         background: #fff; border-radius: 14px;
-        box-shadow: 0 4px 20px rgba(17,153,142,0.08);
+        box-shadow: 0 4px 20px rgba(13,110,253,0.08);
         padding: 20px 24px;
         display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
     }
@@ -126,16 +126,16 @@
         display: inline-flex; align-items: center; justify-content: center;
         font-size: 12px; flex-shrink: 0;
     }
-    .btn-cp-start    { background: linear-gradient(135deg, #11998e, #38ef7d); }
-    .btn-cp-start:hover { box-shadow: 0 6px 20px rgba(17,153,142,0.45); }
-    .btn-cp-edit     { background: linear-gradient(135deg, #4f46e5, #7c3aed); }
-    .btn-cp-edit:hover { box-shadow: 0 6px 20px rgba(79,70,229,0.40); }
-    .btn-cp-notify   { background: linear-gradient(135deg, #0ea5e9, #38bdf8); }
-    .btn-cp-notify:hover { box-shadow: 0 6px 20px rgba(14,165,233,0.40); }
+    .btn-cp-start    { background: linear-gradient(135deg, #0d6efd, #38b6ff); }
+    .btn-cp-start:hover { box-shadow: 0 6px 20px rgba(13,110,253,0.45); }
+    .btn-cp-edit     { background: linear-gradient(135deg, #0d6efd, #38b6ff); }
+    .btn-cp-edit:hover { box-shadow: 0 6px 20px rgba(13,110,253,0.40); }
+    .btn-cp-notify   { background: linear-gradient(135deg, #0d6efd, #38b6ff); }
+    .btn-cp-notify:hover { box-shadow: 0 6px 20px rgba(13,110,253,0.40); }
     .btn-cp-end      { background: linear-gradient(135deg, #dc2626, #f87171); }
     .btn-cp-end:hover { box-shadow: 0 6px 20px rgba(220,38,38,0.40); }
-    .btn-cp-download { background: linear-gradient(135deg, #059669, #34d399); }
-    .btn-cp-download:hover { box-shadow: 0 6px 20px rgba(5,150,105,0.40); }
+    .btn-cp-download { background: linear-gradient(135deg, #0d6efd, #38b6ff); }
+    .btn-cp-download:hover { box-shadow: 0 6px 20px rgba(13,110,253,0.40); }
 
     @media (max-width: 576px) {
         .cp-header { padding: 16px; }
@@ -286,7 +286,7 @@
 <div class="modal fade" id="startChallengeModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content" style="border-radius:16px; border:none; overflow:hidden;">
-            <div class="modal-header" style="background:linear-gradient(135deg,#11998e,#38ef7d); border:none; padding:20px 24px;">
+            <div class="modal-header" style="background:linear-gradient(135deg,#0d6efd,#38b6ff); border:none; padding:20px 24px;">
                 <h5 class="modal-title text-white font-weight-bold mb-0">
                     <i class="fas fa-flag-checkered mr-2"></i> Start Challenge Round
                 </h5>
@@ -303,10 +303,10 @@
                     <label style="font-size:13px; font-weight:600; color:#444;">Base Price <span class="text-danger">*</span></label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text" style="border-radius:10px 0 0 10px; background:#f0fff8; border-color:#c3f0e0; color:#11998e; font-weight:700;">₹</span>
+                            <span class="input-group-text" style="border-radius:10px 0 0 10px; background:#edf5ff; border-color:#bfdbfe; color:#0d6efd; font-weight:700;">₹</span>
                         </div>
                         <input type="number" id="sc_base_price" class="form-control" value="{{ $auction->base_price }}" min="0.01" step="0.01"
-                            style="border-radius:0 10px 10px 0; border-color:#c3f0e0;">
+                            style="border-radius:0 10px 10px 0; border-color:#bfdbfe;">
                     </div>
                     <div class="text-danger mt-1" id="sc_base_price_err" style="font-size:12px; display:none;"></div>
                 </div>
@@ -314,15 +314,15 @@
                     <label style="font-size:13px; font-weight:600; color:#444;">Initial NPV Value <span class="text-danger">*</span></label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text" style="border-radius:10px 0 0 10px; background:#f0fff8; border-color:#c3f0e0; color:#11998e; font-weight:700;">₹</span>
+                            <span class="input-group-text" style="border-radius:10px 0 0 10px; background:#edf5ff; border-color:#bfdbfe; color:#0d6efd; font-weight:700;">₹</span>
                         </div>
                         <input type="number" id="sc_initial_npv" class="form-control" value="{{ $auction->initial_npv_value }}" min="0.01" step="0.01"
-                            style="border-radius:0 10px 10px 0; border-color:#c3f0e0;">
+                            style="border-radius:0 10px 10px 0; border-color:#bfdbfe;">
                     </div>
                     <div class="text-danger mt-1" id="sc_npv_err" style="font-size:12px; display:none;"></div>
                 </div>
             </div>
-            <div class="modal-footer" style="border:none; padding:16px 24px; background:#f8fffe;">
+            <div class="modal-footer" style="border:none; padding:16px 24px; background:#f0f7ff;">
                 <button type="button" class="btn btn-light" data-dismiss="modal" style="border-radius:10px;">Cancel</button>
                 <button type="button" class="btn-cp btn-cp-start" id="btn-sc-submit" style="padding:9px 22px 9px 14px;">
                     <span class="btn-icon"><i class="fas fa-flag-checkered"></i></span>
@@ -337,7 +337,7 @@
 <div class="modal fade" id="editValuesModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content" style="border-radius:16px; border:none; overflow:hidden;">
-            <div class="modal-header" style="background:linear-gradient(135deg,#4f46e5,#7c3aed); border:none; padding:20px 24px;">
+            <div class="modal-header" style="background:linear-gradient(135deg,#0d6efd,#38b6ff); border:none; padding:20px 24px;">
                 <h5 class="modal-title text-white font-weight-bold mb-0">
                     <i class="fas fa-sliders-h mr-2"></i> Edit Values
                 </h5>
@@ -354,10 +354,10 @@
                     <label style="font-size:13px; font-weight:600; color:#444;">Base Price <span class="text-danger">*</span></label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text" style="border-radius:10px 0 0 10px; background:#f3f0ff; border-color:#c4b5fd; color:#7c3aed; font-weight:700;">&#8377;</span>
+                            <span class="input-group-text" style="border-radius:10px 0 0 10px; background:#edf5ff; border-color:#bfdbfe; color:#0d6efd; font-weight:700;">&#8377;</span>
                         </div>
                         <input type="number" id="ev_base_price" class="form-control" value="{{ $auction->base_price }}" min="0.01" step="0.01"
-                            style="border-radius:0 10px 10px 0; border-color:#c4b5fd;">
+                            style="border-radius:0 10px 10px 0; border-color:#bfdbfe;">
                     </div>
                     <div class="text-danger mt-1" id="ev_base_price_err" style="font-size:12px; display:none;"></div>
                 </div>
@@ -365,15 +365,15 @@
                     <label style="font-size:13px; font-weight:600; color:#444;">Initial NPV Value <span class="text-danger">*</span></label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text" style="border-radius:10px 0 0 10px; background:#f3f0ff; border-color:#c4b5fd; color:#7c3aed; font-weight:700;">&#8377;</span>
+                            <span class="input-group-text" style="border-radius:10px 0 0 10px; background:#edf5ff; border-color:#bfdbfe; color:#0d6efd; font-weight:700;">&#8377;</span>
                         </div>
                         <input type="number" id="ev_initial_npv" class="form-control" value="{{ $auction->initial_npv_value }}" min="0.01" step="0.01"
-                            style="border-radius:0 10px 10px 0; border-color:#c4b5fd;">
+                            style="border-radius:0 10px 10px 0; border-color:#bfdbfe;">
                     </div>
                     <div class="text-danger mt-1" id="ev_npv_err" style="font-size:12px; display:none;"></div>
                 </div>
             </div>
-            <div class="modal-footer" style="border:none; padding:16px 24px; background:#f8f7ff;">
+            <div class="modal-footer" style="border:none; padding:16px 24px; background:#f0f7ff;">
                 <button type="button" class="btn btn-light" data-dismiss="modal" style="border-radius:10px;">Cancel</button>
                 <button type="button" class="btn-cp btn-cp-edit" id="btn-ev-submit" style="padding:9px 22px 9px 14px;">
                     <span class="btn-icon"><i class="fas fa-save"></i></span>

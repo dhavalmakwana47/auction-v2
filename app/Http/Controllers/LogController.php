@@ -35,6 +35,7 @@ class LogController extends Controller
             ->addColumn('occurred_at', fn($log) => optional($log->occurred_at)->format('d M Y, h:i:s A') ?: '—')
             ->addColumn('route_name', fn($log) => $log->route_name ?: '—')
             ->addColumn('description', fn($log) => $log->description ?: '—')
+            ->addColumn('ip_address', fn($log) => $log->ip_address ?: '—')
             ->rawColumns(['event_action'])
             ->make(true);
     }
@@ -90,7 +91,7 @@ class LogController extends Controller
     {
         $query = LogEntry::with('user')->orderByDesc('occurred_at');
 
-        if (!$this->isAdmin() ||!$this->isRP()) {
+        if (!$this->isAdmin() && !$this->isRP()) {
             $query->where('user_id', auth()->id());
         }
 

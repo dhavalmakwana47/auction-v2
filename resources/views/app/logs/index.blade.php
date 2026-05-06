@@ -66,6 +66,7 @@
                         <th>Event / Action</th>
                         <th>Description</th>
                         <th>Route</th>
+                        <th>IP Address</th>
                         <th>Status</th>
                         <th>Time</th>
                     </tr>

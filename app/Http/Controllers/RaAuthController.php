@@ -190,6 +190,17 @@ class RaAuthController extends Controller
             }
         }
 
+        // Prevent same user from placing a duplicate bid amount
+        $duplicateExists = $auction->bids()
+            ->where('user_id', Auth::id())
+            ->where('bid_amount', $bidAmount)
+            ->whereIn('status', ['confirmed', 'revision_pending'])
+            ->exists();
+
+        if ($duplicateExists) {
+            return response()->json(['message' => 'You have already placed a bid with this amount. Please enter a different amount.'], 422);
+        }
+
         $highestBid = max(
             (float) str_replace(',', '', $auction->base_price),
             $auction->bids()->where('status', 'confirmed')->max('bid_amount') ?? 0

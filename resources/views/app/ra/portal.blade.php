@@ -196,11 +196,11 @@
             <div class="d-flex" style="background:#edf5ff; border-bottom:1px solid #dbeafe; padding:12px 20px; gap:24px; flex-wrap:wrap;">
                 <div style="font-size:12px; color:#555;">
                     <i class="fas fa-crown mr-1" style="color:#0d6efd;"></i>
-                    Highest Bid: <strong id="top-bids-highest">&mdash;</strong>
+                    Highest Bid: <strong id="top-bids-highest"></strong>
                 </div>
                 <div style="font-size:12px; color:#555;">
                     <i class="fas fa-chart-line mr-1" style="color:#0d6efd;"></i>
-                    Highest NPV: <strong id="top-bids-npv">&mdash;</strong>
+                    Highest NPV: <strong id="top-bids-npv"></strong>
                 </div>
             </div>
 
@@ -352,8 +352,8 @@ $(function () {
             drawCallback: function () {
                 var rows = this.api().rows().data();
                 if (rows.length > 0) {
-                    $('#top-bids-highest').text(rows[0].bid_amount);
-                    $('#top-bids-npv').text(rows[0].total_npv);
+                    $('#top-bids-highest').html(rows[0].bid_amount);
+                    $('#top-bids-npv').html(rows[0].total_npv);
                 } else {
                     $('#top-bids-highest').html('&mdash;');
                     $('#top-bids-npv').html('&mdash;');

@@ -28,6 +28,7 @@ $(function () {
             { data: 'event_action', orderable: false, searchable: false },
             { data: 'description' },
             { data: 'route_name' },
+            { data: 'ip_address' },
             { data: 'status_code' },
             { data: 'occurred_at' },
         ],
