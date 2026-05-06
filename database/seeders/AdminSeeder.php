@@ -14,7 +14,8 @@ class AdminSeeder extends Seeder
     {
         // Create roles
         $adminRole       = Role::firstOrCreate(['name' => 'admin']);
-        Role::firstOrCreate(['name' => 'ra']);
+        Role::firstOrCreate(['name' => 'RA']);
+        
 
         // Define permissions per module
         $permissions = [
@@ -43,7 +44,7 @@ class AdminSeeder extends Seeder
 
 
         // RA role — ra dashboard only
-        Role::findByName('ra')->syncPermissions(['view ra-dashboard']);
+        Role::findByName('RA')->syncPermissions(['view ra-dashboard']);
 
         // Create admin user
         $admin = User::firstOrCreate(

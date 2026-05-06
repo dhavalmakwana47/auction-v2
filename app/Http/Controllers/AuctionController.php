@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\BidPlaced;
 use App\Models\Auction;
 use App\Services\AuctionService;
 use Illuminate\Http\Request;
@@ -118,6 +119,9 @@ class AuctionController extends Controller
             foreach ($distributions as $d) {
                 \App\Models\BidDistribution::create(array_merge(['auction_bid_id' => $bid->id], $d));
             }
+
+            $bid->load(['user', 'auction']);
+            event(new BidPlaced($bid));
         }
 
         return response()->json(['message' => 'Challenge round started successfully.']);

@@ -1,4 +1,4 @@
-﻿@extends('app.layout.app')
+@extends('app.layout.app')
 @section('page_title') Challenge Mechanism Portal â€” {{ $auction->corporate_debtor_name }} @endsection
 
 @section('header-script')
@@ -61,23 +61,20 @@
     </div>
 </div>
 
-{{-- Resolution Amount --}}
+{{-- Resolution Amount (auto-calculated from category grid below) --}}
 <div class="ra-bid-card mb-4">
-    <label style="font-size:13px; font-weight:600; color:#444; margin-bottom:8px; display:block;">Enter Resolution Amount</label>
-    <div class="d-flex align-items-center" style="gap:10px;">
-        <input type="text" id="bid-amount" class="ra-bid-input" placeholder="e.g. &#8377; 1,40,00,00,000" style="flex:1;">
-        <button class="btn btn-place-bid" id="btn-verify-bid" style="white-space:nowrap;">
-            <i class="fas fa-check-circle mr-2"></i> Submit
-        </button>
-        <button class="btn btn-secondary" id="btn-reset-bid" style="border-radius:10px; display:none; white-space:nowrap;">
-            <i class="fas fa-redo mr-2"></i> Reset
+    <label style="font-size:13px; font-weight:600; color:#444; margin-bottom:8px; display:block;">Resolution Amount <small class="text-muted font-weight-normal">(total of amounts in the table below)</small></label>
+    <div class="d-flex align-items-center flex-wrap" style="gap:10px;">
+        <input type="text" id="bid-amount" class="ra-bid-input" readonly tabindex="-1" placeholder="Fill category amounts below — total appears here" style="flex:1; background:#f4f8ff;">
+        <button type="button" class="btn btn-secondary" id="btn-reset-bid" style="border-radius:10px; white-space:nowrap;">
+            <i class="fas fa-redo mr-2"></i> Clear amounts
         </button>
     </div>
     <div id="bid-error" style="display:none; font-size:12px; color:#e74c3c;" class="mt-1">
         <i class="fas fa-exclamation-circle mr-1"></i><span id="bid-error-msg"></span>
     </div>
     <div id="bid-valid-msg" style="display:none; font-size:12px; color:#0d6efd;" class="mt-1">
-        <i class="fas fa-check-circle mr-1"></i> Valid bid amount. Now distribute across categories below.
+        <i class="fas fa-check-circle mr-1"></i> Resolution amount is valid. You can place your bid.
     </div>
     <div class="ra-bid-notes mt-2">
         <div class="note" id="note-base-value">
@@ -96,12 +93,12 @@
         @else
         <div class="note" id="note-min-bid" style="color:#0d6efd;"><i class="fas fa-info-circle"></i> Recommended increment: &#8377; {{ number_format($auction->increment_amount) }} (not enforced)</div>
         @endif
-        <div class="note" id="note-distribute" style="color:#0d6efd; display:none;"><i class="fas fa-info-circle"></i> Distribute the full bid amount across categories. Remaining: <strong id="remaining-amount">0.00</strong></div>
+        <div class="note" id="note-distribute" style="color:#0d6efd;"><i class="fas fa-info-circle"></i> Enter amounts in the table below; the resolution total above updates automatically. <strong id="grid-total-hint">Table total: ₹ 0.00</strong></div>
     </div>
 </div>
 
 {{-- NPV Distribution Table --}}
-<div class="ra-table-card card" id="npv-table-section" style="display:none;">
+<div class="ra-table-card card" id="npv-table-section">
     <div class="card-header">
         <i class="fas fa-table mr-1"></i> Details of Proposed Resolution Amount
     </div>
@@ -288,7 +285,7 @@ $(function () {
     var bidUrl    = '{{ route('ra.auction.bid', $auction) }}';
 
     function formatINR(num) {
-        return 'â‚¹ ' + Number(num).toLocaleString('en-IN');
+        return '\u20b9 ' + Number(num).toLocaleString('en-IN');
     }
 
     var topBidsUrl = '{{ route('ra.auction.top-bids', $auction) }}';
@@ -420,68 +417,60 @@ $(function () {
         });
     });
 
-    // â”€â”€ Disable inputs initially â”€â”€
-    $('.npv-amount-input').prop('disabled', true);
     $('#btn-place-bid').prop('disabled', true);
 
     function validateBidAmount(value) {
-        if (isNaN(value) || value <= 0) return 'Please enter a valid amount.';
+        if (isNaN(value) || value <= 0) return 'Enter category amounts so the total is greater than zero.';
         if (incrementAmountType === 'mandatory') {
             var minBid = baseValue + increment;
-            if (value < minBid) return 'Amount must be at least â‚¹ ' + minBid.toLocaleString('en-IN') + ' (Base + Increment).';
-            if (incrementType !== 'fixed' && increment > 0 && Math.round(value % increment * 1e6) / 1e6 > 0.001) return 'Amount must be a multiple of â‚¹ ' + increment.toLocaleString('en-IN') + '.';
+            if (value < minBid) return 'Amount must be at least ₹ ' + minBid.toLocaleString('en-IN') + ' (Base + Increment).';
+            if (incrementType !== 'fixed' && increment > 0 && Math.round(value % increment * 1e6) / 1e6 > 0.001) return 'Amount must be a multiple of ₹ ' + increment.toLocaleString('en-IN') + '.';
         }
         return null;
     }
 
-    // â”€â”€ Submit: verify bid amount â”€â”€
-    $('#btn-verify-bid').on('click', function () {
-        var raw   = $('#bid-amount').val().replace(/[â‚¹,\s]/g, '');
-        var value = parseFloat(raw);
-
-        $('#bid-error').hide();
-        $('#bid-valid-msg').hide();
-        $('#bid-amount').removeClass('is-invalid');
-
-        var err = validateBidAmount(value);
+    function syncBidFromGrandTotal(grandTotal) {
+        bidAmount = grandTotal;
+        if (grandTotal <= 0) {
+            $('#bid-amount').val('').removeClass('is-invalid');
+            $('#bid-error').hide();
+            $('#bid-valid-msg').hide();
+            $('#btn-place-bid').prop('disabled', true);
+            $('#grid-total-hint').text('Table total: ' + formatINR('0'));
+            return;
+        }
+        $('#bid-amount').val(formatINR(grandTotal.toFixed(2)));
+        $('#grid-total-hint').text('Table total: ' + formatINR(grandTotal.toFixed(2)));
+        var err = validateBidAmount(grandTotal);
+        $('#bid-amount').toggleClass('is-invalid', !!err);
         if (err) {
             $('#bid-error-msg').text(err);
             $('#bid-error').show();
-            $('#bid-amount').addClass('is-invalid');
+            $('#bid-valid-msg').hide();
+            $('#btn-place-bid').prop('disabled', true);
             return;
         }
-
-        bidAmount = value;
-        $('#bid-amount').prop('disabled', true);
-        $(this).prop('disabled', true);
-        $('#btn-reset-bid').show();
-        $('.npv-amount-input').prop('disabled', false);
-        $('#npv-table-section').show();
-        $('#bid-valid-msg').show();
-        $('#note-distribute').show();
-        $('#remaining-amount').text(formatINR(value.toFixed(2)));
-        recalculate();
-    });
-
-    // â”€â”€ Reset â”€â”€
-    $('#btn-reset-bid').on('click', function () {
-        bidAmount = 0;
-        $('#bid-amount').val('').prop('disabled', false).removeClass('is-invalid');
-        $('#btn-verify-bid').prop('disabled', false);
-        $('#btn-reset-bid').hide();
-        $('#bid-valid-msg').hide();
         $('#bid-error').hide();
-        $('#note-distribute').hide();
-        $('#npv-table-section').hide();
-        $('#btn-place-bid').prop('disabled', true);
-        $('.npv-amount-input').val('').prop('disabled', true);
+        $('#bid-valid-msg').show();
+        $('#btn-place-bid').prop('disabled', false);
+    }
+
+    $('#btn-reset-bid').on('click', function () {
+        $('.npv-amount-input').val('');
+        $('.npv-amount-input').prop('disabled', false);
+        bidAmount = 0;
+        $('#bid-amount').val('').removeClass('is-invalid');
+        $('#bid-error').hide();
+        $('#bid-valid-msg').hide();
         $('.col-total').text('0.00');
         $('#grand-total').text('0.00');
-        $('.row-total').text('0.00');
+        $('.row-total').each(function () { $(this).text('0.00'); });
+        $('.col-npv-total').text('0.00');
+        $('#btn-place-bid').prop('disabled', true);
         $('#distribution-error').hide();
+        syncBidFromGrandTotal(0);
     });
 
-    // â”€â”€ Live totals â”€â”€
     function recalculate() {
         var grandTotal = 0;
 
@@ -510,13 +499,7 @@ $(function () {
 
         $('#grand-total').text(grandTotal.toFixed(2));
 
-        if (bidAmount > 0) {
-            var remaining = bidAmount - grandTotal;
-            $('#remaining-amount').text(formatINR(remaining.toFixed(2)));
-            var matched = Math.abs(remaining) < 0.01;
-            $('#btn-place-bid').prop('disabled', !matched);
-            $('#note-distribute').toggle(!matched);
-        }
+        syncBidFromGrandTotal(grandTotal);
     }
 
     $(document).on('input', '.npv-amount-input', recalculate);
@@ -547,41 +530,31 @@ $(function () {
         if (topBidsDT) topBidsDT.ajax.reload(null, false);
         if (myBidsDT) myBidsDT.ajax.reload(null, false);
 
-        var bidLocked = $('#bid-amount').prop('disabled');
+        var grandTotalGrid = parseFloat($('#grand-total').text()) || 0;
+        var hasPositiveCell = false;
+        $('.npv-amount-input').each(function () {
+            if ((parseFloat($(this).val()) || 0) > 0) hasPositiveCell = true;
+        });
+        var inputsLocked = $('.npv-amount-input').length && $('.npv-amount-input').first().prop('disabled');
+        var userHasActiveForm = hasPositiveCell || grandTotalGrid > 0.009 || inputsLocked;
 
-        if (bidLocked) {
-            // In distribution stage â€” full reset, bidAmount is now stale
+        if (userHasActiveForm) {
             bidAmount = 0;
-            $('#bid-amount').val('').prop('disabled', false).removeClass('is-invalid');
-            $('#btn-verify-bid').prop('disabled', false);
-            $('#btn-reset-bid').hide();
+            $('#bid-amount').val('').removeClass('is-invalid');
             $('#bid-valid-msg').hide();
             $('#bid-error').hide();
-            $('#note-distribute').hide();
-            $('#npv-table-section').hide();
             $('#btn-place-bid').prop('disabled', true);
-            $('.npv-amount-input').val('').prop('disabled', true);
+            $('.npv-amount-input').val('').prop('disabled', false);
             $('.col-total').text('0.00');
             $('#grand-total').text('0.00');
             $('.row-total').text('0.00');
+            $('.col-npv-total').text('0.00');
             $('#distribution-error').hide();
-            toastr.warning('A new bid was placed. Your form has been reset â€” please enter a new bid above â‚¹ ' + Number(minNext).toLocaleString('en-IN') + '.', 'Bid Reset', { timeOut: 8000, progressBar: true });
+            syncBidFromGrandTotal(0);
+            toastr.warning('A new bid was placed. Your form was reset — enter category amounts again. New minimum: \u20b9 ' + Number(minNext).toLocaleString('en-IN') + '.', 'Bid Reset', { timeOut: 8000, progressBar: true });
         } else {
-            // Not yet locked â€” re-validate whatever is typed right now
-            var raw = $('#bid-amount').val().replace(/[â‚¹,\s]/g, '');
-            var typed = parseFloat(raw);
-            if (!isNaN(typed) && typed > 0) {
-                var err = validateBidAmount(typed);
-                if (err) {
-                    $('#bid-error-msg').text(err);
-                    $('#bid-error').show();
-                    $('#bid-amount').addClass('is-invalid');
-                } else {
-                    $('#bid-error').hide();
-                    $('#bid-amount').removeClass('is-invalid');
-                }
-            }
-            toastr.info('A new bid has been placed.<br><small>New minimum: â‚¹ ' + Number(minNext).toLocaleString('en-IN') + '</small>', 'New Bid', { timeOut: 6000, progressBar: true, allowHtml: true });
+            recalculate();
+            toastr.info('A new bid has been placed.<br><small>New minimum: \u20b9 ' + Number(minNext).toLocaleString('en-IN') + '</small>', 'New Bid', { timeOut: 6000, progressBar: true, allowHtml: true });
         }
     });
 

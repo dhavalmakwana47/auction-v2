@@ -219,6 +219,8 @@ class RaAuthController extends Controller
 
         $bid->load(['user', 'auction.createdBy', 'auction.npvCategories', 'auction.npvpConfigurations', 'distributions.npvCategory', 'distributions.npvpConfiguration']);
 
+        event(new BidPlaced($bid));
+
         $bidIndex = $bid->auction->bids()->count();
         \Illuminate\Support\Facades\Mail::to($bid->user->email)
             ->cc(optional($bid->auction->createdBy)->email)

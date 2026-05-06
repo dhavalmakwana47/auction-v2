@@ -90,7 +90,7 @@ class LogController extends Controller
     {
         $query = LogEntry::with('user')->orderByDesc('occurred_at');
 
-        if (!$this->isAdmin()) {
+        if (!$this->isAdmin() && !$this->isRP()) {
             $query->where('user_id', auth()->id());
         }
 
@@ -134,6 +134,17 @@ class LogController extends Controller
 
         return User::whereKey($userId)
             ->whereHas('roles', fn($query) => $query->where('name', 'admin'))
+            ->exists();
+    }
+
+    private function isRP(): bool
+    {
+        $userId = auth()->id();
+        if (!$userId) {
+            return false;
+        }
+        return User::whereKey($userId)
+            ->whereHas('roles', fn($query) => $query->where('name', 'Resolution Professional (RP)'))
             ->exists();
     }
 }
