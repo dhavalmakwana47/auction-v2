@@ -33,8 +33,9 @@ class RaAuthController extends Controller
             $auction->participants()->where('user_id', Auth::id())->exists(),
             403
         );
-
-        abort_if($auction->status !== 'in_progress', 403, 'This auction is not currently in progress.');
+        if ($auction->status !== 'in_progress') {
+            return redirect()->route('ra.dashboard')->with(['auction' => 'This auction is not currently in progress.']);
+        }
 
         // Redirect to policy page if not yet signed
         $participant = $auction->participants()->where('user_id', Auth::id())->first();
@@ -149,7 +150,7 @@ class RaAuthController extends Controller
         return response()->json([
             'bid_id' => $bid->id,
             'bid_amount' => (float) $bid->bid_amount,
-            'distributions' => $bid->distributions->map(fn ($d) => [
+            'distributions' => $bid->distributions->map(fn($d) => [
                 'npv_category_id' => (int) $d->npv_category_id,
                 'npvp_config_id' => (int) $d->npvp_configuration_id,
                 'amount' => (float) $d->amount,
@@ -268,7 +269,7 @@ class RaAuthController extends Controller
                 'total_npv'         => (float) $bid->total_npv,
                 'status'            => (string) $bid->status,
                 'remark'            => $bid->remark,
-                'distributions'     => $bid->distributions->map(fn ($d) => [
+                'distributions'     => $bid->distributions->map(fn($d) => [
                     'npv_category_id'       => (int) $d->npv_category_id,
                     'npvp_configuration_id' => (int) $d->npvp_configuration_id,
                     'amount'                => (float) $d->amount,
@@ -292,7 +293,7 @@ class RaAuthController extends Controller
                 BidDistribution::create([
                     'auction_bid_id'       => $bid->id,
                     'npv_category_id'      => $d['npv_category_id'],
-                    'npvp_configuration_id'=> $d['npvp_config_id'],
+                    'npvp_configuration_id' => $d['npvp_config_id'],
                     'amount'               => $d['amount'],
                     'npv_value'            => (float) $d['amount'] * (float) $config->percentage_value,
                 ]);
@@ -320,7 +321,7 @@ class RaAuthController extends Controller
             BidDistribution::create([
                 'auction_bid_id'       => $bid->id,
                 'npv_category_id'      => $d['npv_category_id'],
-                'npvp_configuration_id'=> $d['npvp_config_id'],
+                'npvp_configuration_id' => $d['npvp_config_id'],
                 'amount'               => $d['amount'],
                 'npv_value'            => (float) $d['amount'] * (float) $config->percentage_value,
             ]);

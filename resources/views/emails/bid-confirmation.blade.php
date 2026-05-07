@@ -59,7 +59,7 @@ THROUGH Indian E-voting Platform (Service Provider)</strong></p>
         <tr style="background:#d0e8f8; text-align:center;">
             <th align="left">Category</th>
             @foreach($configs as $cfg)
-                <th>{{ $cfg->period }} Days</th>
+                <th>{{ $cfg->period }}</th>
             @endforeach
             <th>Total (&#8377;)</th>
         </tr>

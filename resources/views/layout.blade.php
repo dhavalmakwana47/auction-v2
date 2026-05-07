@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>NPV CHALLENGE MECHANISM</title>
+    <title>CHALLENGE MECHANISM</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -36,24 +36,39 @@
     <!-- Main CSS File -->
     <link href="{{ asset('homepage/assets/css/main.css') }}" rel="stylesheet">
     <style>
-    
-        .error {
-            color: red;
-        }
-
-        #clock {
-            font-size: 2em;
-            font-weight: bold;
-        }
-
+        .error { color: red; }
+        #clock { font-size: 2em; font-weight: bold; }
         .alert-success {
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid transparent;
-            border-radius: 4px;
-           
-            
+            padding: 15px; margin-bottom: 20px;
+            border: 1px solid transparent; border-radius: 4px;
             border-color: #d6e9c6;
+        }
+
+        /* ── Mobile nav fixes ── */
+        @media (max-width: 1199px) {
+            .mobile-nav-toggle {
+                color: #008374 !important;
+                font-size: 28px;
+                cursor: pointer;
+                z-index: 9999;
+            }
+            .mobile-nav-active .mobile-nav-toggle {
+                color: #fff !important;
+            }
+            .mobile-nav-active .navmenu ul {
+                display: block !important;
+                position: fixed;
+                top: 100px;
+                left: 15px;
+                right: 15px;
+                bottom: auto;
+                background: #fff;
+                border-radius: 8px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+                padding: 10px 0;
+                z-index: 9998;
+            }
+            .navmenu ul { display: none; }
         }
     </style>
     @yield('header-script')
@@ -119,12 +134,11 @@
                                 </form>
                             </li>
                         @else
-                            <li><a href="{{ route('ra.login') }}">Login</a>
+                            <li><a href="{{ route('ra.login') }}">Resolution Applicant Login</a>
                         @endif
-
                     </ul>
-                    <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
                 </nav>
+                <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
 
             </div>
 
@@ -142,9 +156,9 @@
             <div class="row gy-4">
                 <div class="col-lg-5 col-md-12 footer-about">
                     <a href="" class="logo d-flex align-items-center">
-                        <span class="sitename">NPV CHALLENGE MECHANISM</span>
+                        <span class="sitename">CHALLENGE MECHANISM</span>
                     </a>
-                    <p>The NPV Challenge Mechanism enables applicants to request a review or correction of the Net Present Value (NPV) calculated for their project or application.</p>
+                    <p>The Challenge Mechanism enables applicants to request a review or correction of the Net Present Value (NPV) calculated for their project or application.</p>
                     <!--  <div class="social-links d-flex mt-4">
                         <a href=""><i class="bi bi-twitter-x"></i></a>
                         <a href=""><i class="bi bi-facebook"></i></a>
@@ -217,50 +231,12 @@
     <script src="{{ asset('homepage/assets/vendor/purecounter/purecounter_vanilla.js') }}"></script>
     <script src="{{ asset('homepage/assets/vendor/imagesloaded/imagesloaded.pkgd.min.js') }}"></script>
     <script src="{{ asset('homepage/assets/vendor/isotope-layout/isotope.pkgd.min.js') }}"></script>
-    <script src="{{ asset('plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 
     <!-- Main JS File -->
     <script src="{{ asset('homepage/assets/js/main.js') }}"></script>
     <script src=" {{ asset('customdownload/js/jquery.dataTables.min.js') }}"></script>
-    <script src=" {{ asset('custom\numtoword.js') }}"></script>
 
     <script>
-        async function updateClock() {
-            const clockElement = document.getElementById('clock');
-
-            try {
-                // Fetch the current time from your Laravel route
-                const response = await fetch('/api/current-time');
-                const data = await response.json();
-                const dateTimeString = data.utc_datetime;
-                const now = new Date(dateTimeString);
-
-                const hours = String(now.getHours()).padStart(2, '0');
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                const seconds = String(now.getSeconds()).padStart(2, '0');
-
-                clockElement.textContent = `${hours}:${minutes}:${seconds}`;
-
-
-            } catch (error) {
-                console.error('Failed to fetch time:', error);
-            }
-            @if (isset($neworkCheck))
-                checkInternetConnection();
-            @endif
-        }
-
-        // Call updateClock initially and then every second
-        updateClock();
-        // setInterval(updateClock, 1000);
-
-
-        clockInterval = setInterval(updateClock, 1000);
-        // updateClock(); // initial call to display the clock immediately
-
-        setTimeout(() => {
-            $('.alert-success').hide()
-        }, 2000);
     </script>
     @yield('footer-script')
 </body>

@@ -67,7 +67,7 @@ class AuctionController extends Controller
     {
         $request->validate([
             'base_price'       => 'required|numeric|min:0.01',
-            'initial_npv_value'=> 'required|numeric|min:0.01',
+            'initial_npv_value' => 'required|numeric|min:0.01',
         ]);
 
         $auction->update([
@@ -84,43 +84,43 @@ class AuctionController extends Controller
         $categories  = $auction->npvCategories;
         $configs     = $auction->npvpConfigurations;
 
-        if ($rpUserId && $categories->count() > 0 && $configs->count() > 0) {
+        if ($rpUserId && $categories->count() > 0 && $configs->count() > 0 && $auction->bids()->count() === 0) {
             // Distribute base price equally across categories, all into first npvp config
-            $firstConfig   = $configs->first();
-            $categoryCount = $categories->count();
-            $amtPerCat     = round($basePrice / $categoryCount, 2);
+            // $firstConfig   = $configs->first();
+            // $categoryCount = $categories->count();
+            // $amtPerCat     = round($basePrice / $categoryCount, 2);
             // Adjust last category to avoid rounding gap
-            $totalNpv      = 0;
-            $distributions = [];
+            // $totalNpv      = 0;
+            // $distributions = [];
 
-            foreach ($categories as $i => $cat) {
-                $amt = ($i === $categoryCount - 1)
-                    ? round($basePrice - ($amtPerCat * ($categoryCount - 1)), 2)
-                    : $amtPerCat;
-                $npvVal         = $amt * (float) $firstConfig->percentage_value;
-                $totalNpv      += $npvVal;
-                $distributions[] = [
-                    'npv_category_id'       => $cat->id,
-                    'npvp_configuration_id' => $firstConfig->id,
-                    'amount'                => $amt,
-                    'npv_value'             => $npvVal,
-                ];
-            }
+            // foreach ($categories as $i => $cat) {
+            //     $amt = ($i === $categoryCount - 1)
+            //         ? round($basePrice - ($amtPerCat * ($categoryCount - 1)), 2)
+            //         : $amtPerCat;
+            //     $npvVal         = $amt * (float) $firstConfig->percentage_value;
+            //     $totalNpv      += $npvVal;
+            //     $distributions[] = [
+            //         'npv_category_id'       => $cat->id,
+            //         'npvp_configuration_id' => $firstConfig->id,
+            //         'amount'                => $amt,
+            //         'npv_value'             => $npvVal,
+            //     ];
+            // }
 
             $bid = \App\Models\AuctionBid::create([
                 'auction_id'        => $auction->id,
                 'user_id'           => $rpUserId,
                 'bid_amount'        => $basePrice,
                 'total_distributed' => $basePrice,
-                'total_npv'         => $totalNpv,
+                'total_npv'         =>  $request->initial_npv_value,
                 'status'            => 'confirmed',
                 'ip_address'        => $request->ip(),
                 'remark'            => 'INITIAL BASE VALUE',
             ]);
 
-            foreach ($distributions as $d) {
-                \App\Models\BidDistribution::create(array_merge(['auction_bid_id' => $bid->id], $d));
-            }
+            // foreach ($distributions as $d) {
+            //     \App\Models\BidDistribution::create(array_merge(['auction_bid_id' => $bid->id], $d));
+            // }
 
             $bid->load(['user', 'auction']);
             event(new BidPlaced($bid));
@@ -155,11 +155,17 @@ class AuctionController extends Controller
 
     public function bidsDatatable(Auction $auction)
     {
-        $bids = $auction->bids()->with('user')->orderBy('created_at', 'desc');
+        $bids = $auction->bids()->with('user')
+            ->selectRaw('auction_bids.*, (
+                SELECT COUNT(*) FROM auction_bids b2
+                WHERE b2.auction_id = auction_bids.auction_id
+                AND b2.created_at <= auction_bids.created_at
+            ) as bid_number')
+            ->orderBy('created_at', 'desc');
 
         return DataTables::eloquent($bids)
             ->addIndexColumn()
-            ->addColumn('bid_count', fn($b) => '#' . $b->id)
+            ->addColumn('bid_count', fn($b) =>  $b->bid_number)
             ->addColumn('date_time', fn($b) => $b->created_at->format('d M Y, h:i A'))
             ->addColumn('bid_amount_fmt', fn($b) => '₹ ' . number_format($b->bid_amount))
             ->addColumn('total_npv_fmt', fn($b) => '₹ ' . number_format($b->total_npv, 2))
@@ -171,11 +177,13 @@ class AuctionController extends Controller
                     default => '<span class="badge badge-secondary">' . e(ucfirst(str_replace('_', ' ', $b->status))) . '</span>',
                 };
             })
-            ->addColumn('remark_html', fn($b) =>
+            ->addColumn(
+                'remark_html',
+                fn($b) =>
                 '<span class="' . ($b->status === 'confirmed' ? 'text-valid' : 'text-invalid') . '">' .
-                '<i class="fas fa-' . ($b->status === 'confirmed' ? 'check-circle' : 'times-circle') . ' mr-1"></i>' .
-                e($b->remark ?: ($b->status === 'confirmed' ? 'Valid Bid' : 'Invalid Bid')) .
-                '</span>'
+                    '<i class="fas fa-' . ($b->status === 'confirmed' ? 'check-circle' : 'times-circle') . ' mr-1"></i>' .
+                    e($b->remark ?: ($b->status === 'confirmed' ? 'Valid Bid' : 'Invalid Bid')) .
+                    '</span>'
             )
             ->addColumn('action_html', function ($b) use ($auction) {
                 if ($b->status !== 'revision_pending') {
@@ -278,7 +286,7 @@ class AuctionController extends Controller
             $bestBids[] = [
                 'user'    => $p->user,
                 'best'    => $best,
-                'annexure'=> 'Annexure ' . (count($bestBids) + 1),
+                'annexure' => 'Annexure ' . (count($bestBids) + 1),
             ];
         }
 

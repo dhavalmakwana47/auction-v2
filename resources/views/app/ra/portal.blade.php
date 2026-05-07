@@ -108,7 +108,7 @@
                 <tr>
                     <th>Category</th>
                     @foreach($auction->npvpConfigurations as $npvp)
-                        <th>{{ $npvp->period }} Days</th>
+                        <th>{{ $npvp->period }}</th>
                     @endforeach
                     <th>Total</th>
                 </tr>
